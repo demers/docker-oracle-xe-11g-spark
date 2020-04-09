@@ -1,0 +1,22 @@
+version: '2.1'
+
+services:
+  oracle11gspark:
+    build: .
+    container_name: oracle11gspark
+    volumes:
+      - "data_work:/home/ubuntu/work"
+      - "./src:/home/ubuntu/src"
+    restart: always
+    ports:
+      - "2222:22"
+      - "49161:1521"
+      - "27000:27017"
+      - "4567:4567"
+    # A de'commenter pour Linux Ubuntu si ne'cessaire
+    network_mode: "host"
+    # A de'commenter pour Linux Ubuntu sur le cloud
+    # network_mode: "bridge"
+
+volumes:
+  data_work:
