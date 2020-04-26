@@ -7,7 +7,7 @@ services:
     volumes:
       - "data_work:/home/ubuntu/work"
       - "./src:/home/ubuntu/src"
-    restart: always
+    #restart: always
     ports:
       - "2222:22"
       - "49161:1521"

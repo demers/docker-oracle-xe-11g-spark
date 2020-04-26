@@ -37,6 +37,13 @@
             <version>[5.6.1,)</version>
             <scope>test</scope>
         </dependency>
+    <dependency>
+    <groupId>oracle</groupId>
+    <artifactId>ojdbc6</artifactId>
+    <version>11.2.0.4.0</version>
+    <scope>system</scope>
+    <systemPath>${project.basedir}/classpath/ojdbc6.jar</systemPath>
+    </dependency>
     </dependencies>
   <build>
     <plugins>

@@ -32,8 +32,6 @@ RUN echo "$USERNAME:$PASSWORD" | chpasswd
 
 RUN apt-get clean && apt-get -y update && apt-get install -y locales && locale-gen fr_CA.UTF-8
 ENV TZ=America/Toronto
-#RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-#RUN /usr/bin/timedatectl set-timezone $TZ
 RUN unlink /etc/localtime
 RUN ln -s /usr/share/zoneinfo/$TZ /etc/localtime
 
@@ -59,18 +57,27 @@ RUN echo "alias spark='sudo killall java; sudo java -jar target/sparkprojets-jar
 
 RUN echo "echo 'Attendre 30 secondes le démarrage du serveur Oracle... (une fois seulement)'; sleep 30; echo 'alter system disable restricted session;' | /u01/app/oracle/product/11.2.0/xe/bin/sqlplus -s SYSTEM/oracle" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "mv -f ~/.bash_profile ~/.bash_profile.init; grep -v 'Attendre' ~/.bash_profile.init > ~/.bash_profile" >> ${WORKDIRECTORY}/.bash_profile
+RUN echo "echo 'Création du compte PROJETS...'" >> ${WORKDIRECTORY}/.bash_profile
+RUN echo "sleep 2" >> ${WORKDIRECTORY}/.bash_profile
+RUN echo "sqlplus SYSTEM/oracle @compte.sql" >> ${WORKDIRECTORY}/.bash_profile
+RUN echo "echo 'Création des tables et insertions dans la BD PROJETS...'" >> ${WORKDIRECTORY}/.bash_profile
+RUN echo "sleep 2" >> ${WORKDIRECTORY}/.bash_profile
+RUN echo "sqlplus PROJETS/projets @MRD.sql" >> ${WORKDIRECTORY}/.bash_profile
 
 # Permet de garder un historique de la commande SQLPlus.
 RUN apt-get install -y rlwrap
 
 # Raccourcis de la commande SQLPlus
 RUN echo "alias sqlplus='rlwrap sqlplus'" >> ${WORKDIRECTORY}/.bash_profile
-RUN echo "alias sp='rlwrap sqlplus SYSTEM/oracle'" >> ${WORKDIRECTORY}/.bash_profile
+#RUN echo "alias sp='rlwrap sqlplus SYSTEM/oracle'" >> ${WORKDIRECTORY}/.bash_profile
+RUN echo "alias sp='rlwrap sqlplus PROJETS/projets'" >> ${WORKDIRECTORY}/.bash_profile
+#RUN echo "alias projets='sqlplus SYSTEM/oracle @projets.sql'" >> ${WORKDIRECTORY}/.bash_profile
 
 RUN echo "echo ''" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "echo 'Notez que la commande sqlplus permet de démarrer SQLPlus.'" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "echo 'Le mot de passe de SYSTEM et SYS sont oracle'" >> ${WORKDIRECTORY}/.bash_profile
-RUN echo "echo 'La commande sp permet de se connecter automatiquement à SYSTEM/oracle.'" >> ${WORKDIRECTORY}/.bash_profile
+RUN echo "echo 'La commande sp permet de se connecter automatiquement à PROJETS/projets.'" >> ${WORKDIRECTORY}/.bash_profile
+RUN echo "echo 'On peut utiliser la commande sqlplus pour se connecter au compte SYSTEM/oracle.'" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "echo 'La commande spark permet de démarrer le serveur Spark.'" >> ${WORKDIRECTORY}/.bash_profile
 
 # Installation X11.
@@ -85,21 +92,6 @@ EXPOSE 22
 EXPOSE 1521
 EXPOSE 8080
 
-# Installation Java 13
-# http://ubuntuhandbook.org/index.php/2019/10/how-to-install-oracle-java-13-in-ubuntu-18-04-16-04-19-04/
-RUN add-apt-repository ppa:linuxuprising/java
-RUN apt-get update
-
-#RUN echo oracle-java8-installer shared/accepted-oracle-license-v1-1 \
-    #select true | /usr/bin/debconf-set-selections
-RUN echo oracle-java13-installer shared/accepted-oracle-license-v1-2 \
-    select true | sudo /usr/bin/debconf-set-selections
-
-# Alternatives... pris de https://www.linuxuprising.com/2019/09/install-oracle-java-13-on-ubuntu-linux.html
-#RUN echo oracle-java13-installer shared/accepted-oracle-licence-v1-2 boolean true | sudo /usr/bin/debconf-set-selections
-RUN apt install -y oracle-java13-installer
-RUN apt install -y oracle-java13-set-default
-
 # Installation du pilote Java Oracle
 # https://www.codejava.net/java-se/jdbc/connect-to-oracle-database-via-jdbc
 ADD o.j /
@@ -113,9 +105,6 @@ RUN chown -R ubuntu:ubuntu /home/ubuntu/JdbcOracleConnection.java
 
 RUN echo "export JAVA_HOME=/usr/lib/jvm/java-13-oracle/" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "export CLASSPATH=.:/usr/lib/jvm/java-13-oracle/lib:/home/ubuntu/classpath" >> ${WORKDIRECTORY}/.bash_profile
-
-RUN echo "JAVA_HOME=/usr/lib/jvm/java-13-oracle/" >> /etc/environment
-RUN echo "CLASSPATH=.:/usr/lib/jvm/java-13-oracle/lib:/home/ubuntu/classpath" >> /etc/environment
 
 # Installation Python 3
 RUN apt install -y git python3 python3-pip python3-mock python3-tk
@@ -147,10 +136,6 @@ RUN cd ${WORKDIRECTORY} \
 
 EXPOSE 27017
 
-# Installer MongoDB
-#RUN apt-get update
-#RUN apt install -y mongodb
-
 RUN apt-get update
 RUN apt-get install -y maven
 
@@ -174,5 +159,10 @@ RUN chmod +x /start.sh
 
 RUN chown ubuntu:ubuntu /home/ubuntu/pom.xml
 RUN chown -R ubuntu:ubuntu /home/ubuntu/target
+
+ADD MRD.sql /home/ubuntu/
+ADD compte.sql /home/ubuntu/
+
+
 
 CMD ["/start.sh"]
