@@ -11,7 +11,6 @@ services:
     ports:
       - "2222:22"
       - "49161:1521"
-      - "27000:27017"
       - "4567:4567"
     # A de'commenter pour Linux Ubuntu si ne'cessaire
     network_mode: "host"

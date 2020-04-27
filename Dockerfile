@@ -26,7 +26,7 @@ RUN mkdir -p /var/run/sshd
 RUN /usr/bin/ssh-keygen -A
 
 # Add user to the image
-RUN adduser --quiet --disabled-password --shell /bin/bash --home /home/${USERNAME} --gecos "User" ${USERNAME}
+RUN adduser --quiet --disabled-password --shell /bin/bash --home ${WORKDIRECTORY} --gecos "User" ${USERNAME}
 # Set password for the jenkins user (you may want to alter this).
 RUN echo "$USERNAME:$PASSWORD" | chpasswd
 
@@ -96,15 +96,28 @@ EXPOSE 8080
 # https://www.codejava.net/java-se/jdbc/connect-to-oracle-database-via-jdbc
 ADD o.j /
 RUN mv -f /o.j /ojdbc6.jar
-RUN mkdir /home/ubuntu/classpath
-RUN mv -f /ojdbc6.jar /home/ubuntu/classpath/
+RUN mkdir ${WORKDIRECTORY}/classpath
+RUN mv -f /ojdbc6.jar ${WORKDIRECTORY}/classpath/
 RUN chown -R ubuntu:ubuntu ${WORKDIRECTORY}/classpath
 
-ADD JdbcOracleConnection.java /home/ubuntu/
-RUN chown -R ubuntu:ubuntu /home/ubuntu/JdbcOracleConnection.java
+ADD JdbcOracleConnection.java ${WORKDIRECTORY}
+RUN chown -R ubuntu:ubuntu ${WORKDIRECTORY}/JdbcOracleConnection.java
 
-RUN echo "export JAVA_HOME=/usr/lib/jvm/java-13-oracle/" >> ${WORKDIRECTORY}/.bash_profile
-RUN echo "export CLASSPATH=.:/usr/lib/jvm/java-13-oracle/lib:/home/ubuntu/classpath" >> ${WORKDIRECTORY}/.bash_profile
+ADD j.d.aa /
+ADD j.d.ab /
+ADD j.d.ac /
+ADD j.d.ad /
+RUN cat /j.d.aa /j.d.ab /j.d.ac /j.d.ad > /j.d
+RUN rm -f /j.d.a*
+RUN mv -f /j.d /jdk-13.0.2_linux-x64_bin.deb
+RUN apt install -y /jdk-13.0.2_linux-x64_bin.deb
+
+RUN echo "export JAVA_HOME=/usr/lib/jvm/jdk-13.0.2/" >> ${WORKDIRECTORY}/.bash_profile
+RUN echo "export CLASSPATH=.:/usr/lib/jvm/jdk-13.0.2/lib:/home/ubuntu/classpath" >> ${WORKDIRECTORY}/.bash_profile
+#RUN echo "export JAVA_HOME=/usr/lib/jvm/java-13-oracle/" >> ${WORKDIRECTORY}/.bash_profile
+#RUN echo "export CLASSPATH=.:/usr/lib/jvm/java-13-oracle/lib:/home/ubuntu/classpath" >> ${WORKDIRECTORY}/.bash_profile
+
+RUN echo "export PATH=\$JAVA_HOME/bin:$PATH" >> ${WORKDIRECTORY}/.bash_profile
 
 # Installation Python 3
 RUN apt install -y git python3 python3-pip python3-mock python3-tk
@@ -123,8 +136,8 @@ RUN echo 'eval "$(pyenv init -)"' >> ${WORKDIRECTORY}/.bash_profile
 # Installation du pilote Oracle pour Python 3
 RUN pip3 install cx_oracle
 
-ADD oracleConnection.py /home/ubuntu/
-RUN chown -R ubuntu:ubuntu /home/ubuntu/oracleConnection.py
+ADD oracleConnection.py ${WORKDIRECTORY}
+RUN chown -R ubuntu:ubuntu ${WORKDIRECTORY}/oracleConnection.py
 
 # Pour la librairie cx_oracle de Python 3
 RUN echo "export LD_LIBRARY_PATH=/u01/app/oracle/product/11.2.0/xe/lib/" >> ${WORKDIRECTORY}/.bash_profile
@@ -134,22 +147,27 @@ RUN cd ${WORKDIRECTORY} \
     && mkdir work \
     && chown -R $USERNAME:$PASSWORD work .bash_profile .pyenv
 
+# Accès au serveur Oracle
 EXPOSE 27017
 
 RUN apt-get update
 RUN apt-get install -y maven
 
+# Accès à Spark
 EXPOSE 4567
 
-WORKDIR /home/ubuntu
+WORKDIR ${WORKDIRECTORY}
 
-ADD pom.xml /home/ubuntu/pom.xml
+ADD pom.xml ${WORKDIRECTORY}/pom.xml
+RUN mkdir ${WORKDIRECTORY}/dbrepository
+RUN cd ${WORKDIRECTORY}
+RUN mvn deploy:deploy-file -Dfile=./classpath/ojdbc6.jar -DgroupId=ojdbc6 -DartifactId=ojdbc6 -Dversion=11.2.0.4.0 -Dpackaging=jar -Durl=file:./dbrepository/ -DrepositoryId=dbrepository -DupdateReleaseInfo=true
+RUN chown -R $USERNAME:$PASSWORD ${WORKDIRECTORY}/dbrepository
+
 RUN ["mvn", "dependency:resolve"]
 RUN ["mvn", "verify"]
 RUN ["mvn", "test"]
 
-# Ajout du code Java dans le conteneur...
-ADD src /home/ubuntu/src
 RUN ["mvn", "package"]
 
 EXPOSE 4567
@@ -157,12 +175,12 @@ EXPOSE 4567
 ADD start.sh /
 RUN chmod +x /start.sh
 
-RUN chown ubuntu:ubuntu /home/ubuntu/pom.xml
-RUN chown -R ubuntu:ubuntu /home/ubuntu/target
+RUN chown ubuntu:ubuntu ${WORKDIRECTORY}/pom.xml
+RUN chown -R ubuntu:ubuntu ${WORKDIRECTORY}/target
 
-ADD MRD.sql /home/ubuntu/
-ADD compte.sql /home/ubuntu/
-
-
+ADD MRD.sql ${WORKDIRECTORY}
+ADD compte.sql ${WORKDIRECTORY}
+RUN chown ubuntu:ubuntu ${WORKDIRECTORY}/MRD.sql
+RUN chown ubuntu:ubuntu ${WORKDIRECTORY}/compte.sql
 
 CMD ["/start.sh"]

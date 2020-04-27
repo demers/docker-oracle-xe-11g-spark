@@ -16,7 +16,8 @@ Voici les caractéristiques du conteneur contruit ici:
 # Oracle
 
 - Oracle Express Edition 11g Release 2
-- Le mot de passe `SYSTEM` et `SYS` est `oracle`
+- Le mot de passe administrateur `SYSTEM` et `SYS` est `oracle`
+- Le mot de passe de la base de données déjà installé pour `PROJETS` est `projets`
 - Console ligne de commande Bash et Fish
 - Application SQLPlus installé
 - Ports 49161 ouvert pour une connection `localhost` avec SQLPlus local ou par SQLDeveloper
@@ -33,12 +34,7 @@ Voici les caractéristiques du conteneur contruit ici:
 
 - Langage Python 3 installé
 - Pilote Oracle pour Python 3 `cx_oracle`
-- Un programme Java test disponible à `/home/ubuntu/JdbcOracleConnection.java` (voir plus bas pour les exécuter)
 - Un programme Python 3 test disponible à `/home/ubuntu/oracleConnection.py` (voir plus bas pour les exécuter)
-
-# MongoDB
-
-- MongoDB et le client Mongo
 
 # Préalables
 
@@ -162,7 +158,7 @@ Voir les explications à https://webikon.com/cases/installing-oracle-sql-plus-cl
 
 # Comment se connecter à Oracle par SQLPlus de l'intérieur du conteneur
 
-Quand vous êtes connecté au conteneur (par Putty ou SSH), pour accéder à la console Oracle, on tape simplement:
+Quand vous êtes connecté au conteneur (par SSH ou par Putty), pour accéder à la console Oracle, on tape simplement:
 
 ```
 sqlplus
@@ -175,7 +171,7 @@ sqlplus SYSTEM/oracle
 ```
 
 
-Si on veut se connecter directement au compte SYSTEM, on tape le raccourci
+Si on veut se connecter directement au compte PROJETS, on tape le raccourci
 (alias):
 
 ```
@@ -196,6 +192,12 @@ installé SQLPlus ([voir](https://www.oratable.com/sqlplus-instant-client-instal
 sqlplus SYSTEM/oracle@//localhost:49161/XE
 ```
 
+ou
+
+```
+sqlplus PROJETS/projets@//localhost:49161/XE
+```
+
 Si vous êtes sous Linux, il se peut que vous aillez à changer le port 49161 pour
 1521.
 
@@ -203,19 +205,6 @@ Si vous êtes sous Linux, il se peut que vous aillez à changer le port 49161 po
 
 ```
 sqlplus SYSTEM/oracle@//11.22.33.44:49161/XE
-```
-
-# Comment tester le programme Java dans le conteneur
-
-On compile le programme `JdbcOracleConnection.java`:
-
-```
-javac JdbcOracleConnection.java
-```
-On exécute le programme `JdbcOracleConnection`:
-
-```
-java -cp classpath/ojdbc6.jar:. JdbcOracleConnection
 ```
 
 # Comment installer SQL Developer
@@ -277,17 +266,24 @@ sudo mvn test
 ## Comment modifier le code Java
 
 À l'extérieur du conteneur, il suffit de modifier les fichiers dans le dossier
-"src".
+"src".  Il n'est pas nécessaire d'arrêter le conteneur.
+
+Après avoir modifier le code Java disponible dans le dossier `src` du projet
+Spark, on se reconnecte par SSH au conteneur et on exécute les commandes:
+
+```
+mvn "package"
+```
+
+On redémarre le serveur Spark par la commande `spark`
 
 ## Comment démarrer le serveur API Web Spark
 
-Le serveur Spark est déjà en exécution.  Il faut donc l'arrêter par la commande:
+Le serveur Spark est accessible à l'adresse `http://localhost:4567` sur le Web.
 
-```
-sudo killall java
-```
+Normalement, le serveur Spark est déjà en exécution.
 
-Ensuite, on le redémarrage par la commande:
+On le redémarrage par la commande:
 
 ```
 spark
@@ -299,4 +295,10 @@ Si cela ne fonctionne pas, on tape plutôt:
 java -jar target/sparkprojets-jar-with-dependencies.jar &
 ```
 
+Cela peut aider à voir l'erreur produite.  Il se peut que ce soit une erreur
+de compilation.  Pour voir les messages d'erreur, on tape:
+
+```
+mvn "test"
+```
 
