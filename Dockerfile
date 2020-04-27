@@ -63,6 +63,10 @@ RUN echo "sqlplus SYSTEM/oracle @compte.sql" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "echo 'Création des tables et insertions dans la BD PROJETS...'" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "sleep 2" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "sqlplus PROJETS/projets @MRD.sql" >> ${WORKDIRECTORY}/.bash_profile
+RUN echo 'mvn "dependency:resolve"' >> ${WORKDIRECTORY}/.bash_profile
+RUN echo 'mvn "verify"' >> ${WORKDIRECTORY}/.bash_profile
+RUN echo 'mvn "test"' >> ${WORKDIRECTORY}/.bash_profile
+RUN echo 'mvn "package"' >> ${WORKDIRECTORY}/.bash_profile
 
 # Permet de garder un historique de la commande SQLPlus.
 RUN apt-get install -y rlwrap
@@ -114,8 +118,6 @@ RUN apt install -y /jdk-13.0.2_linux-x64_bin.deb
 
 RUN echo "export JAVA_HOME=/usr/lib/jvm/jdk-13.0.2/" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "export CLASSPATH=.:/usr/lib/jvm/jdk-13.0.2/lib:/home/ubuntu/classpath" >> ${WORKDIRECTORY}/.bash_profile
-#RUN echo "export JAVA_HOME=/usr/lib/jvm/java-13-oracle/" >> ${WORKDIRECTORY}/.bash_profile
-#RUN echo "export CLASSPATH=.:/usr/lib/jvm/java-13-oracle/lib:/home/ubuntu/classpath" >> ${WORKDIRECTORY}/.bash_profile
 
 RUN echo "export PATH=\$JAVA_HOME/bin:$PATH" >> ${WORKDIRECTORY}/.bash_profile
 
@@ -166,9 +168,9 @@ RUN chown -R $USERNAME:$PASSWORD ${WORKDIRECTORY}/dbrepository
 
 RUN ["mvn", "dependency:resolve"]
 RUN ["mvn", "verify"]
-RUN ["mvn", "test"]
 
-RUN ["mvn", "package"]
+#RUN ["mvn", "test"]
+#RUN ["mvn", "package"]
 
 EXPOSE 4567
 
