@@ -72,6 +72,7 @@ RUN echo 'nohup java -jar target/sparkprojets-jar-with-dependencies.jar 2> /dev/
 RUN echo "mv -f ~/.bash_profile ~/.bash_profile.init; grep -v 'sqlplus' ~/.bash_profile.init > ~/.bash_profile" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "mv -f ~/.bash_profile ~/.bash_profile.init; grep -v 'mvn' ~/.bash_profile.init > ~/.bash_profile" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "mv -f ~/.bash_profile ~/.bash_profile.init; grep -v 'nohup' ~/.bash_profile.init > ~/.bash_profile" >> ${WORKDIRECTORY}/.bash_profile
+RUN echo "mv -f ~/.bash_profile ~/.bash_profile.init; grep -v 'Création' ~/.bash_profile.init > ~/.bash_profile" >> ${WORKDIRECTORY}/.bash_profile
 
 # Permet de garder un historique de la commande SQLPlus.
 RUN apt-get install -y rlwrap
