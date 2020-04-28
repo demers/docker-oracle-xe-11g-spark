@@ -52,7 +52,7 @@ RUN echo "export PATH=\$ORACLE_HOME/bin:$PATH" >> ${WORKDIRECTORY}/.bash_profile
 
 RUN echo "export ORACLE_SID=XE" >> ${WORKDIRECTORY}/.bash_profile
 
-RUN echo "alias spark='sudo killall java; sudo java -jar target/sparkprojets-jar-with-dependencies.jar 2> /dev/null &'" >> ${WORKDIRECTORY}/.bash_profile
+RUN echo "alias spark='killall java; java -jar target/sparkprojets-jar-with-dependencies.jar 2> /dev/null &'" >> ${WORKDIRECTORY}/.bash_profile
 
 
 RUN echo "echo 'Attendre 30 secondes le démarrage du serveur Oracle... (une fois seulement)'; sleep 30; echo 'alter system disable restricted session;' | /u01/app/oracle/product/11.2.0/xe/bin/sqlplus -s SYSTEM/oracle" >> ${WORKDIRECTORY}/.bash_profile
@@ -68,7 +68,10 @@ RUN echo 'mvn "verify"' >> ${WORKDIRECTORY}/.bash_profile
 RUN echo 'mvn "test"' >> ${WORKDIRECTORY}/.bash_profile
 RUN echo 'mvn "package"' >> ${WORKDIRECTORY}/.bash_profile
 RUN echo 'sleep 2' >> ${WORKDIRECTORY}/.bash_profile
-RUN echo 'java -jar target/sparkprojets-jar-with-dependencies.jar 2> /dev/null &' >> ${WORKDIRECTORY}/.bash_profile
+RUN echo 'nohup java -jar target/sparkprojets-jar-with-dependencies.jar 2> /dev/null &' >> ${WORKDIRECTORY}/.bash_profile
+RUN echo "mv -f ~/.bash_profile ~/.bash_profile.init; grep -v 'sqlplus' ~/.bash_profile.init > ~/.bash_profile" >> ${WORKDIRECTORY}/.bash_profile
+RUN echo "mv -f ~/.bash_profile ~/.bash_profile.init; grep -v 'mvn' ~/.bash_profile.init > ~/.bash_profile" >> ${WORKDIRECTORY}/.bash_profile
+RUN echo "mv -f ~/.bash_profile ~/.bash_profile.init; grep -v 'nohup' ~/.bash_profile.init > ~/.bash_profile" >> ${WORKDIRECTORY}/.bash_profile
 
 # Permet de garder un historique de la commande SQLPlus.
 RUN apt-get install -y rlwrap
@@ -178,7 +181,7 @@ ADD start.sh /
 RUN chmod +x /start.sh
 
 RUN chown ubuntu:ubuntu ${WORKDIRECTORY}/pom.xml
-RUN chown -R ubuntu:ubuntu ${WORKDIRECTORY}/target
+#RUN chown -R ubuntu:ubuntu ${WORKDIRECTORY}/target
 
 ADD MRD.sql ${WORKDIRECTORY}
 ADD compte.sql ${WORKDIRECTORY}
