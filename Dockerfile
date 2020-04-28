@@ -67,19 +67,19 @@ RUN echo 'mvn "dependency:resolve"' >> ${WORKDIRECTORY}/.bash_profile
 RUN echo 'mvn "verify"' >> ${WORKDIRECTORY}/.bash_profile
 RUN echo 'mvn "test"' >> ${WORKDIRECTORY}/.bash_profile
 RUN echo 'mvn "package"' >> ${WORKDIRECTORY}/.bash_profile
+RUN echo 'sleep 2' >> ${WORKDIRECTORY}/.bash_profile
+RUN echo 'java -jar target/sparkprojets-jar-with-dependencies.jar 2> /dev/null &' >> ${WORKDIRECTORY}/.bash_profile
 
 # Permet de garder un historique de la commande SQLPlus.
 RUN apt-get install -y rlwrap
 
 # Raccourcis de la commande SQLPlus
 RUN echo "alias sqlplus='rlwrap sqlplus'" >> ${WORKDIRECTORY}/.bash_profile
-#RUN echo "alias sp='rlwrap sqlplus SYSTEM/oracle'" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "alias sp='rlwrap sqlplus PROJETS/projets'" >> ${WORKDIRECTORY}/.bash_profile
-#RUN echo "alias projets='sqlplus SYSTEM/oracle @projets.sql'" >> ${WORKDIRECTORY}/.bash_profile
 
 RUN echo "echo ''" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "echo 'Notez que la commande sqlplus permet de démarrer SQLPlus.'" >> ${WORKDIRECTORY}/.bash_profile
-RUN echo "echo 'Le mot de passe de SYSTEM et SYS sont oracle'" >> ${WORKDIRECTORY}/.bash_profile
+RUN echo "echo 'Les mots de passe de SYSTEM et SYS sont oracle'" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "echo 'La commande sp permet de se connecter automatiquement à PROJETS/projets.'" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "echo 'On peut utiliser la commande sqlplus pour se connecter au compte SYSTEM/oracle.'" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "echo 'La commande spark permet de démarrer le serveur Spark.'" >> ${WORKDIRECTORY}/.bash_profile
@@ -166,8 +166,8 @@ RUN cd ${WORKDIRECTORY}
 RUN mvn deploy:deploy-file -Dfile=./classpath/ojdbc6.jar -DgroupId=ojdbc6 -DartifactId=ojdbc6 -Dversion=11.2.0.4.0 -Dpackaging=jar -Durl=file:./dbrepository/ -DrepositoryId=dbrepository -DupdateReleaseInfo=true
 RUN chown -R $USERNAME:$PASSWORD ${WORKDIRECTORY}/dbrepository
 
-RUN ["mvn", "dependency:resolve"]
-RUN ["mvn", "verify"]
+#RUN ["mvn", "dependency:resolve"]
+#RUN ["mvn", "verify"]
 
 #RUN ["mvn", "test"]
 #RUN ["mvn", "package"]
