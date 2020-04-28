@@ -52,7 +52,7 @@ RUN echo "export PATH=\$ORACLE_HOME/bin:$PATH" >> ${WORKDIRECTORY}/.bash_profile
 
 RUN echo "export ORACLE_SID=XE" >> ${WORKDIRECTORY}/.bash_profile
 
-RUN echo "alias spark='killall java; java -jar target/sparkprojets-jar-with-dependencies.jar 2> /dev/null &'" >> ${WORKDIRECTORY}/.bash_profile
+RUN echo "alias spark='killall java; sleep 1; nohup java -jar target/sparkprojets-jar-with-dependencies.jar 2> /dev/null &'" >> ${WORKDIRECTORY}/.bash_profile
 
 
 RUN echo "echo 'Attendre 30 secondes le démarrage du serveur Oracle... (une fois seulement)'; sleep 30; echo 'alter system disable restricted session;' | /u01/app/oracle/product/11.2.0/xe/bin/sqlplus -s SYSTEM/oracle" >> ${WORKDIRECTORY}/.bash_profile
