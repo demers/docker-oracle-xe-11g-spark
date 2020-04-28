@@ -3,7 +3,6 @@ version: '2.1'
 services:
   oracle11gspark:
     image: demers/docker-oracle-xe-11g-spark
-    build: .
     container_name: oracle11gspark
     volumes:
       - "data_work:/home/ubuntu/work"
