@@ -13,7 +13,7 @@ services:
       - "49161:1521"
       - "4567:4567"
     # A de'commenter pour Linux Ubuntu si ne'cessaire
-    network_mode: "host"
+    # network_mode: "host"
     # A de'commenter pour Linux Ubuntu sur le cloud
     # network_mode: "bridge"
 
