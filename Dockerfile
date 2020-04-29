@@ -57,8 +57,7 @@ RUN echo "alias spark='killall java; sleep 1; nohup mvn exec:java &'" >> ${WORKD
 
 
 RUN echo "echo 'Attendre 30 secondes le démarrage du serveur Oracle... (une fois seulement)'; sleep 30; echo 'alter system disable restricted session;' | /u01/app/oracle/product/11.2.0/xe/bin/sqlplus -s SYSTEM/oracle" >> ${WORKDIRECTORY}/.bash_profile
-RUN echo "mv -f ~/.bash_profile ~/.bash_profile.init; grep -v 'Attendre' ~/.bash_profile.init > ~/.bash_profile" >> ${WORKDIRECTORY}/.bash_profile
-RUN echo "echo 'Attendre quelques secondes de plus...'" >> ${WORKDIRECTORY}/.bash_profile
+RUN echo "echo 'Attendez quelques secondes...'" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "echo 'Création du compte PROJETS...'" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "sleep 2" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "sqlplus SYSTEM/oracle @compte.sql" >> ${WORKDIRECTORY}/.bash_profile
@@ -72,6 +71,7 @@ RUN echo 'mvn "package"' >> ${WORKDIRECTORY}/.bash_profile
 RUN echo 'sleep 2' >> ${WORKDIRECTORY}/.bash_profile
 #RUN echo 'nohup java -cp /home/ubuntu/classpath/ojdbc6.jar -jar target/sparkprojets-jar-with-dependencies.jar &' >> ${WORKDIRECTORY}/.bash_profile
 RUN echo 'nohup mvn exec:java &' >> ${WORKDIRECTORY}/.bash_profile
+RUN echo "mv -f ~/.bash_profile ~/.bash_profile.init; grep -v 'Attendre' ~/.bash_profile.init > ~/.bash_profile" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "mv -f ~/.bash_profile ~/.bash_profile.init; grep -v 'sqlplus' ~/.bash_profile.init > ~/.bash_profile" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "mv -f ~/.bash_profile ~/.bash_profile.init; grep -v 'mvn' ~/.bash_profile.init > ~/.bash_profile" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "mv -f ~/.bash_profile ~/.bash_profile.init; grep -v 'nohup' ~/.bash_profile.init > ~/.bash_profile" >> ${WORKDIRECTORY}/.bash_profile

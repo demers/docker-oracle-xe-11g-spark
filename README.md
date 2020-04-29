@@ -257,12 +257,6 @@ Dans la console qui apparaît, vous tapez la commande:
 mvn test
 ```
 
-Il se peut qu'il faille l'exécuter en mode administrateur comme suit:
-
-```
-sudo mvn test
-```
-
 ## Comment modifier le code Java
 
 À l'extérieur du conteneur, il suffit de modifier les fichiers dans le dossier
@@ -279,7 +273,9 @@ On redémarre le serveur Spark par la commande `spark`
 
 ## Comment démarrer le serveur API Web Spark
 
-Le serveur Spark est accessible à l'adresse `http://localhost:4567` sur le Web.
+Le serveur Spark est un API Web qui génère du texte en format JSON.
+
+Spark est accessible à l'adresse `http://localhost:4567` sur le Web.
 
 Normalement, le serveur Spark est déjà en exécution.
 
@@ -292,7 +288,9 @@ spark
 Si cela ne fonctionne pas, on tape plutôt:
 
 ```
-java -jar target/sparkprojets-jar-with-dependencies.jar &
+killall java
+
+mvn "exec:java"
 ```
 
 Cela peut aider à voir l'erreur produite.  Il se peut que ce soit une erreur
