@@ -1,9 +1,3 @@
-/* **********************************************************
-	DDL de creation des objets de la base de données
-	Schema MRD         : "Villages Vacances" - Script no 1
-	Par                : Sylvie Monjal
-********************************************************** */
-
 /***********************************************************
 	Table "DEPARTEMENT"
 ***********************************************************/
@@ -45,33 +39,6 @@ CREATE TABLE EMPLOYE
 					REFERENCES DEPARTEMENT (NOM_DEPARTEMENT)
 );
 
-ALTER TABLE EMPLOYE
-ADD -- column
-	NO_SUPERVISEUR	SMALLINT	NULL;
-
-ALTER TABLE EMPLOYE
-ADD CONSTRAINT FK_EMPLOYE_SUPERVISEUR
-					FOREIGN KEY (NO_SUPERVISEUR)
-					REFERENCES EMPLOYE (NO_EMPLOYE);
-
-UPDATE
-	EMPLOYE
-SET
-	NO_SUPERVISEUR = 4
-WHERE
-	UPPER(NOM_DEPARTEMENT) = 'INFO';
-
-UPDATE
-	EMPLOYE
-SET
-	NO_SUPERVISEUR = 8
-WHERE
-	UPPER(NOM_DEPARTEMENT) = 'VENTE';
-
-COMMIT;
-
-ALTER TABLE EMPLOYE
-  ADD COURRIEL VARCHAR2(50) NULL;
 
 /***********************************************************
 	Séquence "SEQ_EMPLOYE_NO_EMPLOYE"
@@ -82,220 +49,14 @@ CREATE SEQUENCE SEQ_EMPLOYE_NO_EMPLOYE
 
 
 /* **********************************************************
-	Table "CATEGORIE_VILLAGE"
+	DML Insert
+	Schéma MRD:	"Cas Projets Version 0"
+	Auteur:		Sylvie Monjal - Cégep de Ste-Foy  	
 ********************************************************** */
-CREATE TABLE CATEGORIE_VILLAGE (
-	ID_CATEGORIE_VILLAGE    NUMERIC(1,0)    NOT NULL,  -- SEQ_ID_CATEGORIE_VILLAGE
-	NO_CATEGORIE	        SMALLINT		NOT NULL,
-	DESCRIPTION		        VARCHAR2(50)	NOT NULL,
-	CONSTRAINT PK_CATEGORIE_VILLAGE
-		PRIMARY KEY (ID_CATEGORIE_VILLAGE),
-	CONSTRAINT U1_CATEGORIE_VILLAGE
-		UNIQUE (NO_CATEGORIE),
-	CONSTRAINT CHK_CAT_VILL_NO_CATEGORIE
-		CHECK(NO_CATEGORIE BETWEEN 1 AND 5)
-);
-/* **********************************************************
-	Sequence "SEQ_ID_CATEGORIE_VILLAGE"
-********************************************************** */
-CREATE SEQUENCE SEQ_ID_CATEGORIE_VILLAGE
-	INCREMENT BY 1
-	START WITH 1;
-
-/* **********************************************************
-	Table "TYPE_LOGEMENT"
-********************************************************** */
-CREATE TABLE TYPE_LOGEMENT(
-	ID_TYPE_LOGEMENT        NUMERIC(2,0)	NOT NULL,  -- SEQ_ID_TYPE_LOGEMENT
-	CODE_TYPE_LOGEMENT	    VARCHAR2(2)		NOT NULL,
-	DESCRIPTION			    VARCHAR2(35)	NOT NULL,
-	NB_MAX_PERSONNES	    SMALLINT		NOT NULL,
-	CONSTRAINT PK_TYPE_LOGEMENT
-		PRIMARY KEY (ID_TYPE_LOGEMENT),
-	CONSTRAINT U1_TYPE_LOGEMENT
-		UNIQUE (CODE_TYPE_LOGEMENT),
-	CONSTRAINT CHK_TYPE_LOG_CODE	-- 1er caractère=lettre, 2ième caractère=chiffre
-		CHECK (SUBSTR(UPPER(CODE_TYPE_LOGEMENT), 1, 1) BETWEEN 'A' AND 'Z'   -- REGEXP_LIKE(CODE_TYPE_LOGEMENT, '[A-Z][1-9]')
-			  AND
-			  SUBSTR(CODE_TYPE_LOGEMENT, 2, 1) BETWEEN '1' AND '9'),
-	CONSTRAINT CHK_TYPE_LOG_NB_MAX_PERS
-		CHECK (NB_MAX_PERSONNES BETWEEN 1 AND 10)
-);
-/* **********************************************************
-	Sequence "SEQ_ID_TYPE_LOGEMENT"
-********************************************************** */
-CREATE SEQUENCE SEQ_ID_TYPE_LOGEMENT
-	INCREMENT BY 1
-	START WITH 1;
-
-/* **********************************************************
-	Table "TARIF_NUITEE"
-********************************************************** */
-CREATE TABLE TARIF_NUITEE(
-	ID_CATEGORIE_VILLAGE    NUMERIC(1,0)    NOT NULL,
-	ID_TYPE_LOGEMENT        NUMERIC(2,0)	NOT NULL,
-	TARIF_UNITAIRE		    NUMERIC(5,2)	NOT NULL,
-	CONSTRAINT PK_TARIF_NUITEE_PRIM
-		PRIMARY KEY (ID_CATEGORIE_VILLAGE, ID_TYPE_LOGEMENT),
-	CONSTRAINT FK_TARIF_CATEG_VILLAGE
-		FOREIGN KEY (ID_CATEGORIE_VILLAGE)
-		REFERENCES CATEGORIE_VILLAGE (ID_CATEGORIE_VILLAGE),
-	CONSTRAINT FK_TARIF_TYPE_LOG
-		FOREIGN KEY (ID_TYPE_LOGEMENT)
-		REFERENCES TYPE_LOGEMENT (ID_TYPE_LOGEMENT),
-	CONSTRAINT CHK_TARIF_UNITAIRE
-		CHECK (TARIF_UNITAIRE BETWEEN 20 AND 300)
-);
-
-/* **********************************************************
-	Table "VILLAGE"
-********************************************************** */
-CREATE TABLE VILLAGE (
-	ID_VILLAGE		        NUMERIC(2,0)	NOT NULL,  -- SEQ_ID_VILLAGE
-	NOM_VILLAGE		        VARCHAR2(15)	NOT NULL,
-	VILLE			        VARCHAR2(10)	NOT NULL,
-	PAYS			        VARCHAR2(10)	NOT NULL,
-	PRIX_TRANSPORT	        NUMERIC(6,2)	NOT NULL,
-	ID_CATEGORIE_VILLAGE	SMALLINT		NOT NULL,
-	CONSTRAINT PK_VILLAGE
-		PRIMARY KEY (ID_VILLAGE),
-	CONSTRAINT U1_VILLAGE
-		UNIQUE (NOM_VILLAGE),
-    CONSTRAINT FK_VILL_CATEGORIE_VILL
-		FOREIGN KEY (ID_CATEGORIE_VILLAGE)
-		REFERENCES CATEGORIE_VILLAGE(ID_CATEGORIE_VILLAGE),
-	CONSTRAINT CHK_VILLAGE_PRIX_TRANSPORT
-		CHECK(PRIX_TRANSPORT > 0)
-);
-/* **********************************************************
-	Sequence "SEQ_ID_VILLAGE"
-********************************************************** */
-CREATE SEQUENCE SEQ_ID_VILLAGE
-	INCREMENT BY 1
-	START WITH 1;
-
-/* **********************************************************
-	Table "LOGEMENT"
-********************************************************** */
-CREATE TABLE LOGEMENT(
-	ID_LOGEMENT             NUMERIC(4,0)	NOT NULL,  -- SEQ_ID_LOGEMENT
-	NO_LOGEMENT			    SMALLINT		NOT NULL,
-	ID_VILLAGE			    NUMERIC(2,0)	NOT NULL,
-	ID_TYPE_LOGEMENT        NUMERIC(2,0)		NOT NULL,
-	COMMENTAIRE			    VARCHAR2(75)	NULL,
-	CONSTRAINT PK_LOGEMENT
-		PRIMARY KEY (ID_LOGEMENT),
-    CONSTRAINT U1_LOGEMENT
-		UNIQUE (NO_LOGEMENT, ID_VILLAGE),
-	CONSTRAINT FK_LOG_TYPE_LOGEMENT
-		FOREIGN KEY (ID_TYPE_LOGEMENT)
-		REFERENCES TYPE_LOGEMENT (ID_TYPE_LOGEMENT),
-	CONSTRAINT FK_LOG_VILLAGE
-		FOREIGN KEY (ID_VILLAGE)
-		REFERENCES VILLAGE (ID_VILLAGE)
-);
-/* **********************************************************
-	Sequence "SEQ_ID_LOGEMENT"
-********************************************************** */
-CREATE SEQUENCE SEQ_ID_LOGEMENT
-	INCREMENT BY 1
-	START WITH 1;
-
-/* **********************************************************
-	Table "CLIENT"
-********************************************************** */
-CREATE TABLE CLIENT(
-	ID_CLIENT			NUMERIC(6,0)	NOT NULL,		-- SEQ_ID_CLIENT
-	NOM					VARCHAR2(15)	NOT NULL,
-	PRENOM				VARCHAR2(10)	NOT NULL,
-	SEXE				CHAR(1)			NOT NULL,
-	ADRESSE				VARCHAR2(50)	NULL,
-	CONSTRAINT PK_CLIENT
-		PRIMARY KEY (ID_CLIENT),
-	CONSTRAINT CHK_CLIENT_SEXE
-		CHECK(SEXE IN ('F','M'))
-);
-/* **********************************************************
-	Sequence "SEQ_ID_CLIENT"
-********************************************************** */
-CREATE SEQUENCE SEQ_ID_CLIENT
-	INCREMENT BY 1
-	START WITH 1;
-
-/* **********************************************************
-	Table "RESERVATION"
-********************************************************** */
-CREATE TABLE RESERVATION(
-	ID_RESERVATION		NUMERIC(7,0)			NOT NULL,		-- SEQ_ID_RESERVATION
-	DATE_RESERVATION	DATE DEFAULT SYSDATE	NOT NULL ,
-	ID_CLIENT			NUMERIC(6,0)			NOT NULL,
-	ID_VILLAGE			NUMERIC(2,0)			NOT NULL,
-	CONSTRAINT PK_RESERVATION
-		PRIMARY KEY (ID_RESERVATION),
-	CONSTRAINT FK_RES_CLIENT
-		FOREIGN KEY (ID_CLIENT)
-		REFERENCES CLIENT (ID_CLIENT),
-	CONSTRAINT FK_RES_VILLAGE
-		FOREIGN KEY (ID_VILLAGE)
-		REFERENCES VILLAGE (ID_VILLAGE)
-);
-/* **********************************************************
-	Sequence "SEQ_ID_RESERVATION"
-********************************************************** */
-CREATE SEQUENCE SEQ_ID_RESERVATION
-	INCREMENT BY 1
-	START WITH 1000;
-
-/* **********************************************************
-	DDL de creation des objets de la base de données
-	Schema MRD         : "Villages Vacances" - Script no 2
-	Par                : Sylvie Monjal
-********************************************************** */
-
-
-/* **********************************************************
-	Table "CLIENT" - Ajout d'un teléphone
-********************************************************** */
-ALTER TABLE CLIENT
-    ADD -- column
-        TEL_DOMICILE	VARCHAR2(13)	NOT NULL;
-
-ALTER TABLE CLIENT
-    ADD CONSTRAINT CHK_CLIENT_TELEPHONE
-        CHECK (REGEXP_LIKE(TEL_DOMICILE, '[(]([0-9]{3})[)][0-9]{3}-[0-9]{4}'));
-   --Ou CHECK (REGEXP_LIKE(TEL_DOMICILE, '^\(\d{3}\)\d{3}-\d{4}$'));
-
-/* **********************************************************
-	Table "SEJOUR"
-********************************************************** */
-CREATE TABLE SEJOUR(
-	ID_SEJOUR   		NUMERIC(10,0)	NOT NULL,		-- SEQ_ID_SEJOUR
-	DATE_SEJOUR			DATE			NOT NULL,
-	ID_LOGEMENT			NUMERIC(4,0)	NOT NULL,
-	ID_RESERVATION		NUMERIC(7,0)	NOT NULL,
-	NB_PERSONNES		SMALLINT		NOT NULL,
-	CONSTRAINT PK_SEJOUR
-		PRIMARY KEY (ID_SEJOUR),
-	CONSTRAINT U1_SEJOUR
-		UNIQUE (DATE_SEJOUR, ID_LOGEMENT),
-	CONSTRAINT FK_SEJOUR_LOGEMENT
-		FOREIGN KEY (ID_LOGEMENT)
-		REFERENCES LOGEMENT (ID_LOGEMENT),
-	CONSTRAINT FK_SEJOUR_RESERVATION
-		FOREIGN KEY (ID_RESERVATION)
-		REFERENCES RESERVATION (ID_RESERVATION)
-);
-/* **********************************************************
-	Sequence "SEQ_ID_SEJOUR"
-********************************************************** */
-CREATE SEQUENCE SEQ_ID_SEJOUR
-	INCREMENT BY 1
-	START WITH 1;
-
 
 /*===============================================================================
-     Table DEPARTEMENT: 5 départements
-/*===============================================================================*/
+     Table DEPARTEMENT: 5 départements 
+/*===============================================================================*/	
 
 --=====================================================================================
 -- Département 'Recherche'
@@ -337,10 +98,10 @@ INSERT INTO
 		('Markt',
 		 'Marketing');
 --=====================================================================================
--- Département 'Ventes'
+-- Département 'Ventes'	 
 INSERT INTO
 	DEPARTEMENT
-		(TELEPHONE,
+		(TELEPHONE,		
 		 NOM_COMPLET,
 		 NOM_DEPARTEMENT)
 	VALUES
@@ -351,7 +112,7 @@ INSERT INTO
 
 /*===============================================================================
      Table EMPLOYE: 18 employés
-/*===============================================================================*/
+/*===============================================================================*/	
 
 INSERT INTO
 	EMPLOYE
@@ -381,7 +142,7 @@ INSERT INTO
 		 NULL,
 		 NULL,
 		 NULL,
-		 NULL);
+		 NULL);		 
 INSERT INTO
 	EMPLOYE
 		(NO_EMPLOYE,
@@ -403,7 +164,7 @@ INSERT INTO
 		 'Ban',
 		 'Ray',
 		 'M',
-		 NULL,
+		 NULL, 
 		 TO_DATE('1998-07-15','yyyy-mm-dd'),
 		 'vice-roi',
 		 105000,
@@ -411,7 +172,7 @@ INSERT INTO
 		 NULL,
 		 NULL,
 		 NULL);
-
+	 
 --=====================================================================================
 -- Département 'Recherche' --> aucun employé
 
@@ -438,7 +199,7 @@ INSERT INTO
 		 'Lacroix',
 		 'Etienne',
 		 'M',
-		 NULL,
+		 NULL, 
 		 TO_DATE('2000-09-02','yyyy-mm-dd'),
 		 'financier',
 		 95000,
@@ -467,7 +228,7 @@ INSERT INTO
 		 'Gagnon',
 		 'Eric',
 		 'M',
-		 NULL,
+		 NULL, 
 		 TO_DATE('2003-01-21','yyyy-mm-dd'),
 		 'comptable',
 		 78400,
@@ -498,7 +259,7 @@ INSERT INTO
 		 331936209, 'Gates',
 		 'Bill',
 		 'M',
-		 NULL,
+		 NULL, 
 		 TO_DATE('1998-07-15','yyyy-mm-dd'),
 		 'directeur',
 		 78000,
@@ -527,7 +288,7 @@ INSERT INTO
 		 'Monjal',
 		 'Sylvie',
 		 'F',
-		 NULL,
+		 NULL, 
 		 TO_DATE('1998-09-15','yyyy-mm-dd'),
 		 'analyste',
 		 45000,
@@ -556,7 +317,7 @@ INSERT INTO
 		 'Nadeau',
 		 'Michel',
 		 'M',
-		 NULL,
+		 NULL, 
 		 TO_DATE('2004-01-15','yyyy-mm-dd'),
 		 'analyste',
 		 35000,
@@ -585,7 +346,7 @@ INSERT INTO
 		 'Gagnon',
 		 'Carmen',
 		 'F',
-		 NULL,
+		 NULL, 
 		 TO_DATE('1999-09-15','yyyy-mm-dd'),
 		 'analyste',
 		 42000,
@@ -614,7 +375,7 @@ INSERT INTO
 		 'Gagnon',
 		 'Martine',
 		 'F',
-		 NULL,
+		 NULL, 
 		 TO_DATE('1998-03-02','yyyy-mm-dd'),
 		 'programmeur',
 		 38000,
@@ -643,7 +404,7 @@ INSERT INTO
 		 'VanHoute',
 		 'Eloi',
 		 'M',
-		 NULL,
+		 NULL, 
 		 TO_DATE('2002-05-12','yyyy-mm-dd'),
 		 'programmeur',
 		 28000,
@@ -672,7 +433,7 @@ INSERT INTO
 		 'Souci',
 		 'Marcel',
 		 'M',
-		 NULL,
+		 NULL, 
 		 TO_DATE('2015-03-02','yyyy-mm-dd'),
 		 'programmeur',
 		 34300,
@@ -701,7 +462,7 @@ INSERT INTO
 		 'Souci',
 		 'Marcel',
 		 'M',
-		 NULL,
+		 NULL, 
 		 TO_DATE('2014-08-28','yyyy-mm-dd'),
 		 'rédacteur',
 		 35100,
@@ -730,7 +491,7 @@ INSERT INTO
 		 'Abott',
 		 'Gino',
 		 'M',
-		 NULL,
+		 NULL, 
 		 TO_DATE('2005-03-02','yyyy-mm-dd'),
 		 'testeur',
 		 40500,
@@ -762,7 +523,7 @@ INSERT INTO
 		 'Hey',
 		 'Heidi',
 		 'F',
-		 NULL ,
+		 NULL , 
 		 TO_DATE('2015-07-22','yyyy-mm-dd'),
 		 'cadre direction',
 		 45000,
@@ -791,7 +552,7 @@ INSERT INTO
 		 'Colin',
 		 'Maillard',
 		 'M',
-		 NULL,
+		 NULL, 
 		 TO_DATE('2005-03-02','yyyy-mm-dd'),
 		 'analyste',
 		 44500,
@@ -799,23 +560,6 @@ INSERT INTO
 		 NULL,
 		 NULL,
 		 NULL);
-
-
-UPDATE
-	EMPLOYE
-SET
-	NO_SUPERVISEUR = 4
-WHERE
-	UPPER(NOM_DEPARTEMENT) = 'INFO';
-
-UPDATE
-	EMPLOYE
-SET
-	NO_SUPERVISEUR = 8
-WHERE
-	UPPER(NOM_DEPARTEMENT) = 'VENTE';
-
-COMMIT;
 
 --=====================================================================================
 -- Département 'Ventes' --> 3 employés
@@ -840,7 +584,7 @@ INSERT INTO
 		 'Halou',
 		 'Jean',
 		 'F',
-		 NULL ,
+		 NULL , 
 		 TO_DATE('2001-02-28','yyyy-mm-dd'),
 		 'cadre direction',
 		 80000,
@@ -868,7 +612,7 @@ INSERT INTO
 		 555521991,
 		 'Bazoo',
 		 'Marc',
-		 'M', NULL,
+		 'M', NULL, 
 		 TO_DATE('2000-01-02','yyyy-mm-dd'),
 		 'vendeur',
 		 41500,
@@ -897,7 +641,7 @@ INSERT INTO
 		 'Zouzou',
 		 'Corinne',
 		 'M',
-		 NULL,
+		 NULL, 
 		 TO_DATE('2005-08-01','yyyy-mm-dd'),
 		 'vendeur',
 		 25500,
@@ -905,4747 +649,945 @@ INSERT INTO
 		 NULL,
 		 NULL,
 		 NULL);
-
+		 
 -- Sauvegarde des données
 COMMIT;
+
+/* EXERCICE 1 */
+/* ========== */
+			 
+/***********************************************************
+	Table "CLIENT"
+***********************************************************/
+CREATE TABLE CLIENT
+(
+    NOM_CLIENT			VARCHAR2(10)	NOT NULL,
+    NO_ENREGISTREMENT	SMALLINT		NOT NULL,
+    RUE					VARCHAR2(10)	NULL,
+    VILLE				VARCHAR2(10)	NOT NULL,
+    CODE_POSTAL			VARCHAR2(6)		NOT NULL,
+    TELEPHONE			NUMERIC(10,0)	NULL,
+    CONSTRAINT PK_CLIENT
+					PRIMARY KEY (NOM_CLIENT),
+    CONSTRAINT U1_CLIENT
+					UNIQUE (NO_ENREGISTREMENT)
+);
+
+		 
 /*===============================================================================
-     Table CATeGORIE_VILLAGE: 3 catégories de village
-/*===============================================================================*/
-SAVEPOINT CATEGORIES_VILLAGE;
+  3. Table CLIENT: 8 clients
+/*===============================================================================*/	
 INSERT INTO
-	CATEGORIE_VILLAGE
-		(ID_CATEGORIE_VILLAGE,
-         NO_CATEGORIE,
+	CLIENT
+		(NOM_CLIENT,
+		 NO_ENREGISTREMENT,
+		 RUE ,
+		 VILLE,
+		 CODE_POSTAL,
+		 TELEPHONE)
+	VALUES
+		('Navel',
+		 14237,
+		 NULL,
+		 'Québec',
+		 'G1R3X4',
+		 NULL);
+INSERT INTO
+	CLIENT
+		(NOM_CLIENT,
+		 NO_ENREGISTREMENT,
+		 RUE ,
+		 VILLE,
+		 CODE_POSTAL,
+		 TELEPHONE)
+	VALUES
+		('Grahams',
+		 12228,
+		 NULL,
+		 'Québec',
+		 'G2T3Y4',
+		 NULL);
+INSERT INTO
+	CLIENT
+		(NOM_CLIENT,
+		 NO_ENREGISTREMENT,
+		 RUE ,
+		 VILLE,
+		 CODE_POSTAL,
+		 TELEPHONE)
+	VALUES
+		('Bazoo',
+		 5774,
+		 NULL,
+		 'Québec',
+		 'S1F2Y4',
+		 NULL);
+INSERT INTO
+	CLIENT
+		(NOM_CLIENT,
+		 NO_ENREGISTREMENT,
+		 RUE ,
+		 VILLE,
+		 CODE_POSTAL,
+		 TELEPHONE)
+	VALUES
+		('Durivage',
+		 3774,
+		 NULL,
+		 'Québec',
+		 'P5F2Z4',
+		 NULL);
+INSERT INTO
+	CLIENT
+		(NOM_CLIENT,
+		 NO_ENREGISTREMENT,
+		 RUE ,
+		 VILLE,
+		 CODE_POSTAL,
+		 TELEPHONE)
+ 	VALUES
+		('Leblanc',
+		 4561,
+		 NULL,
+		 'Montréal',
+		 'D8F2Y4',
+		 NULL);
+INSERT INTO
+	CLIENT
+		(NOM_CLIENT,
+		 NO_ENREGISTREMENT,
+		 RUE ,
+		 VILLE,
+		 CODE_POSTAL,
+		 TELEPHONE)
+ 	VALUES
+		('GMC',
+		 12,
+		 NULL,
+		 'Montréal',
+		 'S7F2W4',
+		 NULL);
+INSERT INTO
+	CLIENT
+		(NOM_CLIENT,
+		 NO_ENREGISTREMENT,
+		 RUE ,
+		 VILLE,
+		 CODE_POSTAL,
+		 TELEPHONE)
+	VALUES
+		('KPMG',
+		 11223,
+		 NULL,
+		 'Montréal',
+		 'B1V2R4',
+		 NULL);
+INSERT INTO
+	CLIENT
+		(NOM_CLIENT,
+		 NO_ENREGISTREMENT,
+		 RUE ,
+		 VILLE,
+		 CODE_POSTAL,
+		 TELEPHONE)
+	VALUES
+		('ArcBec',
+		 4456,
+		 NULL,
+		 'Lévis',
+		 'T1T2M4',
+		 NULL);
+COMMIT;
+
+/***********************************************************
+	Table "PROJET"
+***********************************************************/
+CREATE TABLE PROJET
+(
+    NOM_PROJET			VARCHAR2(10)	NOT NULL,
+    NOM_CLIENT			VARCHAR2(10)	NOT NULL,
+    DATE_DEBUT_PREVUE	DATE			NULL,
+    DATE_DEBUT_REELLE	DATE			NULL,
+    DATE_FIN_PREVUE		DATE			NULL,
+    DATE_FIN_REELLE		DATE			NULL,
+    BUDGET				NUMERIC(6,0)	NULL,
+    NO_GESTIONNAIRE		SMALLINT		NOT NULL,
+    NO_CONTACT_CLIENT	SMALLINT		NULL,
+    CONSTRAINT PK_PROJET
+					PRIMARY KEY (NOM_CLIENT, NOM_PROJET),	
+    CONSTRAINT FK_PRJ_CLIENT
+					FOREIGN KEY (NOM_CLIENT)
+					REFERENCES CLIENT (NOM_CLIENT),
+    CONSTRAINT FK_PRJ_EMPLOYE_GESTION
+					FOREIGN KEY (NO_GESTIONNAIRE)
+					REFERENCES EMPLOYE (NO_EMPLOYE),
+    CONSTRAINT FK_PRJ_EMPLOYE_CONTACT
+					FOREIGN KEY (NO_CONTACT_CLIENT)
+					REFERENCES EMPLOYE (NO_EMPLOYE)
+);
+
+/*===============================================================================
+  4. Table PROJET: 10 projets
+/*===============================================================================*/	
+-- Client Navel: 3 projets
+INSERT INTO
+	PROJET
+		(NOM_PROJET,
+		 NOM_CLIENT,
+		 BUDGET,
+		 DATE_DEBUT_PREVUE,
+		 DATE_DEBUT_REELLE,
+		 DATE_FIN_PREVUE,
+		 DATE_FIN_REELLE,
+		 NO_GESTIONNAIRE,
+		 NO_CONTACT_CLIENT)
+    VALUES
+		('RH',
+		 'Navel',
+		 12000,
+		 TO_DATE('2015-09-01','yyyy-mm-dd'),
+		 TO_DATE('2015-09-01','yyyy-mm-dd'),
+		 TO_DATE('2015-12-01','yyyy-mm-dd'),
+		 TO_DATE('2016-01-18','yyyy-mm-dd'),
+		 2,
+		 NULL);
+INSERT INTO
+	PROJET
+		(NOM_PROJET,
+		 NOM_CLIENT,
+		 BUDGET,
+		 DATE_DEBUT_PREVUE,
+		 DATE_DEBUT_REELLE,
+		 DATE_FIN_PREVUE,
+		 DATE_FIN_REELLE,
+		 NO_GESTIONNAIRE,
+		 NO_CONTACT_CLIENT)
+    VALUES
+		('EnLigne',
+		 'Navel',
+		 25000,
+		 TO_DATE('2016-01-06','yyyy-mm-dd'),
+		 TO_DATE('2016-02-02','yyyy-mm-dd'),
+		 TO_DATE('2016-08-02','yyyy-mm-dd'),
+		 NULL,
+		 6,
+		 NULL);
+INSERT INTO
+	PROJET
+		(NOM_PROJET,
+		 NOM_CLIENT,
+		 BUDGET,
+		 DATE_DEBUT_PREVUE,
+		 DATE_DEBUT_REELLE,
+		 DATE_FIN_PREVUE,
+		 DATE_FIN_REELLE,
+		 NO_GESTIONNAIRE,
+		 NO_CONTACT_CLIENT)
+    VALUES
+		('Production',
+		 'Navel',
+		 6000,
+		 TO_DATE('2016-06-01','yyyy-mm-dd'),
+		 NULL,
+		 TO_DATE('2016-12-12','yyyy-mm-dd'),
+		 NULL,
+		 7,
+		 NULL);
+
+--=====================================================================================
+-- Client Grahams: 1 projet
+INSERT INTO
+	PROJET
+		(NOM_PROJET,
+		 NOM_CLIENT,
+		 BUDGET,
+		 DATE_DEBUT_PREVUE,
+		 DATE_DEBUT_REELLE,
+		 DATE_FIN_PREVUE,
+		 DATE_FIN_REELLE,
+		 NO_GESTIONNAIRE,
+		 NO_CONTACT_CLIENT)
+    VALUES
+		('RH',
+		 'Grahams',
+		 NULL,
+		 TO_DATE('2016-02-01','yyyy-mm-dd'),
+		 NULL,
+		 TO_DATE('2016-06-12','yyyy-mm-dd'),
+		 NULL,
+		 10,
+		 NULL);
+
+--=====================================================================================
+-- Client Bazoo: 2 projets
+INSERT INTO
+	PROJET
+		(NOM_PROJET,
+		 NOM_CLIENT,
+		 BUDGET,
+		 DATE_DEBUT_PREVUE,
+		 DATE_DEBUT_REELLE,
+		 DATE_FIN_PREVUE,
+		 DATE_FIN_REELLE,
+		 NO_GESTIONNAIRE,
+		 NO_CONTACT_CLIENT)
+    VALUES
+		('Stocks',
+		 'Bazoo',
+		 7000,
+		 TO_DATE('2015-11-01','yyyy-mm-dd'),
+		 TO_DATE('2015-11-21','yyyy-mm-dd'),
+		 TO_DATE('2016-03-12','yyyy-mm-dd'),
+		 TO_DATE('2016-02-03','yyyy-mm-dd'),
+		 17,
+		 NULL);
+INSERT INTO
+	PROJET
+		(NOM_PROJET,
+		 NOM_CLIENT,
+		 BUDGET,
+		 DATE_DEBUT_PREVUE,
+		 DATE_DEBUT_REELLE,
+		 DATE_FIN_PREVUE,
+		 DATE_FIN_REELLE,
+		 NO_GESTIONNAIRE,
+		 NO_CONTACT_CLIENT)
+    VALUES
+		('Ventes',
+		 'Bazoo',
+		 NULL,
+		 TO_DATE('2016-04-15','yyyy-mm-dd'),
+		 TO_DATE('2016-01-17','yyyy-mm-dd'),
+		 TO_DATE('2016-02-05','yyyy-mm-dd'),
+		 NULL,
+		 8,
+		 NULL);
+
+--=====================================================================================
+-- Client GMC: 1 projet
+INSERT INTO
+	PROJET
+		(NOM_PROJET,
+		 NOM_CLIENT,
+		 BUDGET,
+		 DATE_DEBUT_PREVUE,
+		 DATE_DEBUT_REELLE,
+		 DATE_FIN_PREVUE,
+		 DATE_FIN_REELLE,
+		 NO_GESTIONNAIRE,
+		 NO_CONTACT_CLIENT)
+    VALUES
+		('Inventaire',
+		 'GMC',
+		 85000,
+		 TO_DATE('2015-01-06','yyyy-mm-dd'),
+		 TO_DATE('2015-02-01','yyyy-mm-dd'),
+		 TO_DATE('2016-04-02','yyyy-mm-dd'),
+		 NULL,
+		 8,
+		 NULL);
+--=====================================================================================
+-- Client KPMG: 3 projets
+INSERT INTO
+	PROJET
+		(NOM_PROJET,
+		 NOM_CLIENT,
+		 BUDGET,
+		 DATE_DEBUT_PREVUE,
+		 DATE_DEBUT_REELLE,
+		 DATE_FIN_PREVUE,
+		 DATE_FIN_REELLE,
+		 NO_GESTIONNAIRE,
+		 NO_CONTACT_CLIENT)
+    VALUES
+		('RH',
+		 'KPMG',
+		 100000,
+		 TO_DATE('2015-04-01','yyyy-mm-dd'),
+		 TO_DATE('2015-04-08','yyyy-mm-dd'),
+		 TO_DATE('2016-04-01','yyyy-mm-dd'),
+		 TO_DATE('2016-01-18','yyyy-mm-dd'),
+		 8,
+		 NULL);
+INSERT INTO
+	PROJET
+		(NOM_PROJET,
+		 NOM_CLIENT,
+		 BUDGET,
+		 DATE_DEBUT_PREVUE,
+		 DATE_DEBUT_REELLE,
+		 DATE_FIN_PREVUE,
+		 DATE_FIN_REELLE,
+		 NO_GESTIONNAIRE,
+		 NO_CONTACT_CLIENT)
+    VALUES
+		('Bottin',
+		 'KPMG',
+		 52000,
+		 TO_DATE('2016-01-02','yyyy-mm-dd'),
+		 TO_DATE('2016-01-02','yyyy-mm-dd'),
+		 TO_DATE('2016-05-25','yyyy-mm-dd'),
+		 NULL,
+		 15,
+		 NULL);
+INSERT INTO
+	PROJET
+		(NOM_PROJET,
+		 NOM_CLIENT,
+		 BUDGET,
+		 DATE_DEBUT_PREVUE,
+		 DATE_DEBUT_REELLE,
+		 DATE_FIN_PREVUE,
+		 DATE_FIN_REELLE,
+		 NO_GESTIONNAIRE,
+		 NO_CONTACT_CLIENT)
+    VALUES
+		('Pilotage',
+		 'KPMG',
+		 NULL,
+		 TO_DATE('2016-08-01','yyyy-mm-dd'),
+		 NULL,
+		 TO_DATE('2016-12-01','yyyy-mm-dd'),
+		 NULL,
+		 5,
+		 NULL);
+ 
+COMMIT;
+
+/***********************************************************
+	Table DOCUMENT_PRJ
+***********************************************************/
+CREATE TABLE DOCUMENT_PRJ
+(
+    NO_DOCUMENT			SMALLINT		NOT NULL,
+    NOM_PROJET			VARCHAR2(10)	NOT NULL,
+    NOM_CLIENT			VARCHAR2(10)	NOT NULL,
+    TITRE				VARCHAR2(15)	NOT NULL,
+    TYPE_DOC			CHAR(1)			NOT NULL,
+    DESCRIPTION			VARCHAR2(15)	NULL,
+    CONSTRAINT PK_DOCUMENT_PRJ
+			PRIMARY KEY (NO_DOCUMENT, NOM_PROJET, NOM_CLIENT),
+    CONSTRAINT FK_DOC_PROJET
+			FOREIGN KEY (NOM_CLIENT, NOM_PROJET)
+			REFERENCES PROJET (NOM_CLIENT, NOM_PROJET)
+);
+
+/***********************************************************
+	Table AFFECTATION_TRAVAIL
+***********************************************************/
+CREATE TABLE AFFECTATION_TRAVAIL
+(
+    NOM_CLIENT			VARCHAR2(10)	NOT NULL,
+    NOM_PROJET			VARCHAR2(10)	NOT NULL,
+    NO_EMPLOYE			SMALLINT		NOT NULL,
+    DATE_AFFECTATION	DATE			NOT NULL,
+    CONSTRAINT PK_AFFECTATION_TRAVAIL
+			PRIMARY KEY (NOM_CLIENT, NOM_PROJET, NO_EMPLOYE),
+    CONSTRAINT FK_AFFECTATION_PROJET
+			FOREIGN KEY (NOM_CLIENT, NOM_PROJET)
+			REFERENCES PROJET (NOM_CLIENT, NOM_PROJET),
+    CONSTRAINT FK_AFFECTATION_EMPLOYE
+			FOREIGN KEY (NO_EMPLOYE)
+			REFERENCES EMPLOYE (NO_EMPLOYE)
+);
+
+/*===============================================================================
+  Table AFFECTATION_TRAVAIL: 22 affectations
+/*===============================================================================*/	
+--=====================================================================================
+-- Projet 'RH', 'Navel': 2 affectations de travail
+INSERT INTO
+	AFFECTATION_TRAVAIL
+		(NOM_PROJET,
+		 NOM_CLIENT,
+		 NO_EMPLOYE,
+		 DATE_AFFECTATION)
+	VALUES
+		('RH',
+		 'Navel',
+		 2,
+		 TO_DATE('2015-09-01','yyyy-mm-dd'));
+INSERT INTO
+	AFFECTATION_TRAVAIL
+		(NOM_PROJET,
+		 NOM_CLIENT,
+		 NO_EMPLOYE,
+		 DATE_AFFECTATION)
+	VALUES
+		('RH',
+		 'Navel',
+		 3,
+		 TO_DATE('2015-09-01','yyyy-mm-dd'));
+--=====================================================================================
+-- Projet 'EnLigne', 'Navel': 5 affectations de travail
+INSERT INTO
+	AFFECTATION_TRAVAIL
+		(NOM_PROJET,
+		 NOM_CLIENT,
+		 NO_EMPLOYE,
+		 DATE_AFFECTATION)
+	VALUES
+		('EnLigne',
+		'Navel',
+		8,
+		TO_DATE('2016-01-06','yyyy-mm-dd'));
+INSERT INTO
+	AFFECTATION_TRAVAIL
+		(NOM_PROJET,
+		 NOM_CLIENT,
+		 NO_EMPLOYE,
+		 DATE_AFFECTATION)
+	VALUES
+		('EnLigne',
+		 'Navel',
+		 10,
+		 TO_DATE('2016-01-06','yyyy-mm-dd'));
+INSERT INTO
+	AFFECTATION_TRAVAIL
+		(NOM_PROJET,
+		 NOM_CLIENT,
+		 NO_EMPLOYE,
+		 DATE_AFFECTATION)
+	VALUES
+		('EnLigne',
+		 'Navel',
+		 12,
+		 TO_DATE('2016-01-12','yyyy-mm-dd'));
+INSERT INTO
+	AFFECTATION_TRAVAIL
+		(NOM_PROJET,
+		 NOM_CLIENT,
+		 NO_EMPLOYE,
+		 DATE_AFFECTATION)
+	VALUES
+		('EnLigne',
+		 'Navel',
+		 14,
+		 TO_DATE('2016-02-18','yyyy-mm-dd'));
+INSERT INTO
+	AFFECTATION_TRAVAIL
+		(NOM_PROJET,
+		 NOM_CLIENT,
+		 NO_EMPLOYE,
+		 DATE_AFFECTATION)
+	VALUES
+		('EnLigne',
+		 'Navel',
+		 16,	
+		 TO_DATE('2016-02-18','yyyy-mm-dd'));
+--=====================================================================================
+-- Projet 'Production', 'Navel': 0 affectations de travail
+--=====================================================================================
+-- Projet 'RH', 'Grahams': 2 affectations de travail
+INSERT INTO
+	AFFECTATION_TRAVAIL
+		(NOM_PROJET,
+		 NOM_CLIENT,
+		 NO_EMPLOYE,
+		 DATE_AFFECTATION)
+	VALUES
+		('RH',
+		 'Grahams',
+		 10,
+		 TO_DATE('2016-02-01','yyyy-mm-dd'));
+INSERT INTO
+	AFFECTATION_TRAVAIL
+		(NOM_PROJET,
+		 NOM_CLIENT,
+		 NO_EMPLOYE,
+		 DATE_AFFECTATION)
+	VALUES
+		('RH',
+		 'Grahams',
+		 13,
+		 TO_DATE('2016-04-01','yyyy-mm-dd'));
+--=====================================================================================
+-- Projet 'Stocks', 'Bazoo': 3 affectations de travail
+INSERT INTO
+	AFFECTATION_TRAVAIL
+		(NOM_PROJET,
+		 NOM_CLIENT,
+		 NO_EMPLOYE,
+		 DATE_AFFECTATION)
+	VALUES
+		('Stocks',
+		 'Bazoo',
+		 8,
+		 TO_DATE('2015-12-01','yyyy-mm-dd'));
+INSERT INTO
+	AFFECTATION_TRAVAIL
+		(NOM_PROJET,
+		 NOM_CLIENT,
+		 NO_EMPLOYE,
+		 DATE_AFFECTATION)
+	VALUES
+		('Stocks',
+		 'Bazoo',
+		 3,
+		 TO_DATE('2015-11-21','yyyy-mm-dd'));
+INSERT INTO
+	AFFECTATION_TRAVAIL
+		(NOM_PROJET,
+		 NOM_CLIENT,
+		 NO_EMPLOYE,
+		 DATE_AFFECTATION)
+	VALUES
+		('Stocks',
+		 'Bazoo',
+		 17,
+		 TO_DATE('2015-01-01','yyyy-mm-dd'));
+--=====================================================================================
+-- Projet 'Ventes', 'Bazoo': 4 affectations de travail
+INSERT INTO
+	AFFECTATION_TRAVAIL
+		(NOM_PROJET,
+		 NOM_CLIENT,
+		 NO_EMPLOYE,
+		 DATE_AFFECTATION)
+	VALUES
+		('Ventes',
+		 'Bazoo',
+		 8,
+		 TO_DATE('2016-03-17','yyyy-mm-dd'));
+INSERT INTO
+	AFFECTATION_TRAVAIL
+		(NOM_PROJET,
+		 NOM_CLIENT,
+		 NO_EMPLOYE,
+		 DATE_AFFECTATION)
+	VALUES
+		('Ventes',
+		 'Bazoo',
+		 10,
+		 TO_DATE('2016-03-17','yyyy-mm-dd'));
+INSERT INTO
+	AFFECTATION_TRAVAIL
+		(NOM_PROJET,
+		 NOM_CLIENT,
+		 NO_EMPLOYE,
+		 DATE_AFFECTATION)
+	VALUES
+		('Ventes',
+		 'Bazoo',
+		 9,
+		 TO_DATE('2016-03-24','yyyy-mm-dd'));
+INSERT INTO
+	AFFECTATION_TRAVAIL
+		(NOM_PROJET,
+		 NOM_CLIENT,
+		 NO_EMPLOYE,
+		 DATE_AFFECTATION)
+	VALUES
+		('Ventes',
+		 'Bazoo',
+		 14,
+		 TO_DATE('2016-04-18','yyyy-mm-dd'));
+--=====================================================================================
+-- Projet 'Inventaire', 'GMC': 4 affectations de travail
+INSERT INTO
+	AFFECTATION_TRAVAIL
+		(NOM_PROJET,
+		 NOM_CLIENT,
+		 NO_EMPLOYE,
+		 DATE_AFFECTATION)
+	VALUES
+		('Inventaire',
+		 'GMC',
+		 4,
+		 TO_DATE('2015-02-01','yyyy-mm-dd'));
+INSERT INTO
+	AFFECTATION_TRAVAIL
+		(NOM_PROJET,
+		 NOM_CLIENT,
+		 NO_EMPLOYE,
+		 DATE_AFFECTATION)
+	VALUES
+		('Inventaire',
+		 'GMC',
+		 10,
+		 TO_DATE('2015-03-19','yyyy-mm-dd'));
+INSERT INTO
+	AFFECTATION_TRAVAIL
+		(NOM_PROJET,
+		 NOM_CLIENT,
+		 NO_EMPLOYE,
+		 DATE_AFFECTATION)
+	VALUES
+		('Inventaire',
+		 'GMC',
+		 11,
+		 TO_DATE('2015-11-22','yyyy-mm-dd'));
+INSERT INTO
+	AFFECTATION_TRAVAIL
+		(NOM_PROJET,
+		 NOM_CLIENT,
+		 NO_EMPLOYE,
+		 DATE_AFFECTATION)
+	VALUES
+		('Inventaire',
+		 'GMC',
+		 8,
+		 TO_DATE('2015-03-22','yyyy-mm-dd'));
+--=====================================================================================
+-- Projet 'RH', 'KPMG': 2 affectations de travail
+INSERT INTO
+	AFFECTATION_TRAVAIL
+		(NOM_PROJET,
+		 NOM_CLIENT,
+		 NO_EMPLOYE,
+		 DATE_AFFECTATION)
+	VALUES
+		('RH',
+		 'KPMG',
+		 4,
+		 TO_DATE('2015-04-01','yyyy-mm-dd'));
+INSERT INTO
+	AFFECTATION_TRAVAIL
+		(NOM_PROJET,
+		 NOM_CLIENT,
+		 NO_EMPLOYE,
+		 DATE_AFFECTATION)
+	VALUES
+		('RH',
+		 'KPMG',
+		 10,
+		 TO_DATE('2015-10-01','yyyy-mm-dd'));	
+--=====================================================================================
+-- Projet 'Pilotage', 'KPMG': 0 affectations de travail	
+	
+/*===============================================================================
+  Table DOCUMENT_PRJ: 12 documents
+/*===============================================================================*/	
+--=====================================================================================
+-- Projet 'RH', 'Navel': 5 documents
+INSERT INTO
+	DOCUMENT_PRJ
+		(NO_DOCUMENT,
+		 NOM_PROJET,
+		 NOM_CLIENT,
+		 TYPE_DOC,
+		 TITRE,
 		 DESCRIPTION)
 	VALUES
-		(SEQ_ID_CATEGORIE_VILLAGE.NEXTVAL,
-         1,
-		 'tennis, piscine, mini-golf, golf, sauna, garderie');
+		(1,
+		 'RH',
+		 'Navel',
+		 'A',
+		 'Analyse',
+		 NULL);
 INSERT INTO
-	CATEGORIE_VILLAGE
-		(ID_CATEGORIE_VILLAGE,
-         NO_CATEGORIE,
+	DOCUMENT_PRJ
+		(NO_DOCUMENT,
+		 NOM_PROJET,
+		 NOM_CLIENT,
+		 TYPE_DOC,
+		 TITRE,
 		 DESCRIPTION)
 	VALUES
-		(SEQ_ID_CATEGORIE_VILLAGE.NEXTVAL,
-         2,
-		 'tennis, piscine, golf, sauna');
+		(2,
+		 'RH',
+		 'Navel',
+		 'A',
+		 'Backlog',
+		  NULL);
 INSERT INTO
-	CATEGORIE_VILLAGE
-		(ID_CATEGORIE_VILLAGE,
-         NO_CATEGORIE,
+	DOCUMENT_PRJ
+		(NO_DOCUMENT,
+		 NOM_PROJET,
+		 NOM_CLIENT,
+		 TYPE_DOC,
+		 TITRE,
 		 DESCRIPTION)
 	VALUES
-		(SEQ_ID_CATEGORIE_VILLAGE.NEXTVAL,
-         3,
-		 'tennis, piscine, garderie');
-
-/*===============================================================================
-     Table TYPE_LOGEMENT: 11 types de logement
-/*===============================================================================*/
-SAVEPOINT TYPES_LOGEMENT;
-INSERT INTO
-	TYPE_LOGEMENT
-		(ID_TYPE_LOGEMENT,
-         CODE_TYPE_LOGEMENT,
-		 DESCRIPTION,
-		 NB_MAX_PERSONNES)
-	VALUES
-		(SEQ_ID_TYPE_LOGEMENT.NEXTVAL,
-         'A1',
-		 'Chambre 4 personnes avec douche',
-		 4);
-INSERT INTO
-	TYPE_LOGEMENT
-		(ID_TYPE_LOGEMENT,
-         CODE_TYPE_LOGEMENT,
-		 DESCRIPTION,
-		 NB_MAX_PERSONNES)
-	VALUES
-		(SEQ_ID_TYPE_LOGEMENT.NEXTVAL,
-         'A2',
-		 'Chambre 4 personnes avec bain',
-		 4);
-INSERT INTO
-	TYPE_LOGEMENT
-		(ID_TYPE_LOGEMENT,
-         CODE_TYPE_LOGEMENT,
-		 DESCRIPTION,
-		 NB_MAX_PERSONNES)
-	VALUES
-		(SEQ_ID_TYPE_LOGEMENT.NEXTVAL,
-         'A3',
-		 'Chambre 2 personnes avec bain',
-		 2);
-INSERT INTO
-	TYPE_LOGEMENT
-		(ID_TYPE_LOGEMENT,
-         CODE_TYPE_LOGEMENT,
-		 DESCRIPTION,
-		 NB_MAX_PERSONNES)
-	VALUES
-		(SEQ_ID_TYPE_LOGEMENT.NEXTVAL,
-         'A4',
-		 'Chambre 1 personne avec bain',
-		 1);
-INSERT INTO
-	TYPE_LOGEMENT
-		(ID_TYPE_LOGEMENT,
-         CODE_TYPE_LOGEMENT,
-		 DESCRIPTION,
-		 NB_MAX_PERSONNES)
-	VALUES
-		(SEQ_ID_TYPE_LOGEMENT.NEXTVAL,
-         'B1',
-		 'Suite 1 personne',
-		 1);
-INSERT INTO
-	TYPE_LOGEMENT
-		(ID_TYPE_LOGEMENT,
-         CODE_TYPE_LOGEMENT,
-		 DESCRIPTION,
-		 NB_MAX_PERSONNES)
-	VALUES
-		(SEQ_ID_TYPE_LOGEMENT.NEXTVAL,
-         'B2',
-		 'Suite 2 personnes',
-		 2);
-INSERT INTO
-	TYPE_LOGEMENT
-		(ID_TYPE_LOGEMENT,
-         CODE_TYPE_LOGEMENT,
-		 DESCRIPTION,
-		 NB_MAX_PERSONNES)
-	VALUES
-		(SEQ_ID_TYPE_LOGEMENT.NEXTVAL,
-         'C1',
-		 'Bungalow 4 personnes',
-		 4);
-INSERT INTO
-	TYPE_LOGEMENT
-		(ID_TYPE_LOGEMENT,
-         CODE_TYPE_LOGEMENT,
-		 DESCRIPTION,
-		 NB_MAX_PERSONNES)
-	VALUES
-		(SEQ_ID_TYPE_LOGEMENT.NEXTVAL,
-         'C2',
-		 'Bungalow 2 personnes',
-		 2);
-INSERT INTO
-	TYPE_LOGEMENT
-		(ID_TYPE_LOGEMENT,
-         CODE_TYPE_LOGEMENT,
-		 DESCRIPTION,
-		 NB_MAX_PERSONNES)
-	VALUES
-		(SEQ_ID_TYPE_LOGEMENT.NEXTVAL,
-         'D1',
-		 'Chalet 6 personnes',
-		 6);
-INSERT INTO
-	TYPE_LOGEMENT
-		(ID_TYPE_LOGEMENT,
-         CODE_TYPE_LOGEMENT,
-		 DESCRIPTION,
-		 NB_MAX_PERSONNES)
-	VALUES
-		(SEQ_ID_TYPE_LOGEMENT.NEXTVAL,
-         'D2',
-		 'Chalet 4 personnes',
-		 4);
-INSERT INTO
-	TYPE_LOGEMENT
-		(ID_TYPE_LOGEMENT,
-         CODE_TYPE_LOGEMENT,
-		 DESCRIPTION,
-		 NB_MAX_PERSONNES)
-	VALUES
-		(SEQ_ID_TYPE_LOGEMENT.NEXTVAL,
-         'D3',
-		 'Chalet 2 personnes',
-		 2);
-
-/*===============================================================================
-     Table TARIF_NUITEE:
-/*===============================================================================*/
-SAVEPOINT TARIFS;
--- Categorie 1
-INSERT INTO
-	TARIF_NUITEE
-		(ID_CATEGORIE_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 TARIF_UNITAIRE)
-	VALUES
-		((SELECT ID_CATEGORIE_VILLAGE FROM CATEGORIE_VILLAGE WHERE NO_CATEGORIE = 1),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'A1'),
-		 45);
-INSERT INTO
-	TARIF_NUITEE
-		(ID_CATEGORIE_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 TARIF_UNITAIRE)
-	VALUES
-		((SELECT ID_CATEGORIE_VILLAGE FROM CATEGORIE_VILLAGE WHERE NO_CATEGORIE = 1),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'A2'),
-		 50);
-INSERT INTO
-	TARIF_NUITEE
-		(ID_CATEGORIE_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 TARIF_UNITAIRE)
-	VALUES
-		((SELECT ID_CATEGORIE_VILLAGE FROM CATEGORIE_VILLAGE WHERE NO_CATEGORIE = 1),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'A3'),
-		 60);
-INSERT INTO
-	TARIF_NUITEE
-		(ID_CATEGORIE_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 TARIF_UNITAIRE)
-	VALUES
-		((SELECT ID_CATEGORIE_VILLAGE FROM CATEGORIE_VILLAGE WHERE NO_CATEGORIE = 1),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'A4'),
-		 70);
-INSERT INTO
-	TARIF_NUITEE
-		(ID_CATEGORIE_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 TARIF_UNITAIRE)
-	VALUES
-		((SELECT ID_CATEGORIE_VILLAGE FROM CATEGORIE_VILLAGE WHERE NO_CATEGORIE = 1),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'B1'),
-		 75);
-INSERT INTO
-	TARIF_NUITEE
-		(ID_CATEGORIE_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 TARIF_UNITAIRE)
-	VALUES
-		((SELECT ID_CATEGORIE_VILLAGE FROM CATEGORIE_VILLAGE WHERE NO_CATEGORIE = 1),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'B2'),
-		 85);
-INSERT INTO
-	TARIF_NUITEE
-		(ID_CATEGORIE_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 TARIF_UNITAIRE)
-	VALUES
-		((SELECT ID_CATEGORIE_VILLAGE FROM CATEGORIE_VILLAGE WHERE NO_CATEGORIE = 1),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'C1'),
-		 40);
-INSERT INTO
-	TARIF_NUITEE
-		(ID_CATEGORIE_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 TARIF_UNITAIRE)
-	VALUES
-		((SELECT ID_CATEGORIE_VILLAGE FROM CATEGORIE_VILLAGE WHERE NO_CATEGORIE = 1),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'C2'),
-		 35);
-INSERT INTO
-	TARIF_NUITEE
-		(ID_CATEGORIE_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 TARIF_UNITAIRE)
-	VALUES
-		((SELECT ID_CATEGORIE_VILLAGE FROM CATEGORIE_VILLAGE WHERE NO_CATEGORIE = 1),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'D1'),
-		 40);
-INSERT INTO
-	TARIF_NUITEE
-		(ID_CATEGORIE_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 TARIF_UNITAIRE)
-	VALUES
-		((SELECT ID_CATEGORIE_VILLAGE FROM CATEGORIE_VILLAGE WHERE NO_CATEGORIE = 1),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'D2'),
-		 50);
-INSERT INTO
-	TARIF_NUITEE
-		(ID_CATEGORIE_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 TARIF_UNITAIRE)
-	VALUES
-		((SELECT ID_CATEGORIE_VILLAGE FROM CATEGORIE_VILLAGE WHERE NO_CATEGORIE = 1),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'D3'),
-		 80);
--- Categorie 2
-INSERT INTO
-	TARIF_NUITEE
-		(ID_CATEGORIE_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 TARIF_UNITAIRE)
-	VALUES
-		((SELECT ID_CATEGORIE_VILLAGE FROM CATEGORIE_VILLAGE WHERE NO_CATEGORIE = 2),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'A1'),
-		 40);
-INSERT INTO
-	TARIF_NUITEE
-		(ID_CATEGORIE_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 TARIF_UNITAIRE)
-	VALUES
-		((SELECT ID_CATEGORIE_VILLAGE FROM CATEGORIE_VILLAGE WHERE NO_CATEGORIE = 2),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'A2'),
-		 45);
-INSERT INTO
-	TARIF_NUITEE
-		(ID_CATEGORIE_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 TARIF_UNITAIRE)
-	VALUES
-		((SELECT ID_CATEGORIE_VILLAGE FROM CATEGORIE_VILLAGE WHERE NO_CATEGORIE = 2),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'A3'),
-		 50);
-INSERT INTO
-	TARIF_NUITEE
-		(ID_CATEGORIE_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 TARIF_UNITAIRE)
-	VALUES
-		((SELECT ID_CATEGORIE_VILLAGE FROM CATEGORIE_VILLAGE WHERE NO_CATEGORIE = 2),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'A4'),
-		 60);
-INSERT INTO
-	TARIF_NUITEE
-		(ID_CATEGORIE_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 TARIF_UNITAIRE)
-	VALUES
-		((SELECT ID_CATEGORIE_VILLAGE FROM CATEGORIE_VILLAGE WHERE NO_CATEGORIE = 2),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'B1'),
-		 65);
-INSERT INTO
-	TARIF_NUITEE
-		(ID_CATEGORIE_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 TARIF_UNITAIRE)
-	VALUES
-		((SELECT ID_CATEGORIE_VILLAGE FROM CATEGORIE_VILLAGE WHERE NO_CATEGORIE = 2),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'B2'),
-		 75);
-INSERT INTO
-	TARIF_NUITEE
-		(ID_CATEGORIE_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 TARIF_UNITAIRE)
-	VALUES
-		((SELECT ID_CATEGORIE_VILLAGE FROM CATEGORIE_VILLAGE WHERE NO_CATEGORIE = 2),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'C1'),
-		 30);
-INSERT INTO
-	TARIF_NUITEE
-		(ID_CATEGORIE_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 TARIF_UNITAIRE)
-	VALUES
-		((SELECT ID_CATEGORIE_VILLAGE FROM CATEGORIE_VILLAGE WHERE NO_CATEGORIE = 2),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'C2'),
-		 40);
-INSERT INTO
-	TARIF_NUITEE
-		(ID_CATEGORIE_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 TARIF_UNITAIRE)
-	VALUES
-		((SELECT ID_CATEGORIE_VILLAGE FROM CATEGORIE_VILLAGE WHERE NO_CATEGORIE = 2),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'D1'),
-		 30);
-INSERT INTO
-	TARIF_NUITEE
-		(ID_CATEGORIE_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 TARIF_UNITAIRE)
-	VALUES
-		((SELECT ID_CATEGORIE_VILLAGE FROM CATEGORIE_VILLAGE WHERE NO_CATEGORIE = 2),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'D2'),
-		 40);
-INSERT INTO
-	TARIF_NUITEE
-		(ID_CATEGORIE_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 TARIF_UNITAIRE)
-	VALUES
-		((SELECT ID_CATEGORIE_VILLAGE FROM CATEGORIE_VILLAGE WHERE NO_CATEGORIE = 2),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'D3'),
-		 60);
--- Categorie 3
-INSERT INTO
-	TARIF_NUITEE
-		(ID_CATEGORIE_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 TARIF_UNITAIRE)
-	VALUES
-		((SELECT ID_CATEGORIE_VILLAGE FROM CATEGORIE_VILLAGE WHERE NO_CATEGORIE = 3),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'A1'),
-		 35);
-INSERT INTO
-	TARIF_NUITEE
-		(ID_CATEGORIE_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 TARIF_UNITAIRE)
-	VALUES
-		((SELECT ID_CATEGORIE_VILLAGE FROM CATEGORIE_VILLAGE WHERE NO_CATEGORIE = 3),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'A2'),
-		 40);
-INSERT INTO
-	TARIF_NUITEE
-		(ID_CATEGORIE_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 TARIF_UNITAIRE)
-	VALUES
-		((SELECT ID_CATEGORIE_VILLAGE FROM CATEGORIE_VILLAGE WHERE NO_CATEGORIE = 3),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'A3'),
-		 45);
-INSERT INTO
-	TARIF_NUITEE
-		(ID_CATEGORIE_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 TARIF_UNITAIRE)
-	VALUES
-		((SELECT ID_CATEGORIE_VILLAGE FROM CATEGORIE_VILLAGE WHERE NO_CATEGORIE = 3),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'A4'),
-		 55);
-INSERT INTO
-	TARIF_NUITEE
-		(ID_CATEGORIE_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 TARIF_UNITAIRE)
-	VALUES
-		((SELECT ID_CATEGORIE_VILLAGE FROM CATEGORIE_VILLAGE WHERE NO_CATEGORIE = 3),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'B1'),
-		 60);
-INSERT INTO
-	TARIF_NUITEE
-		(ID_CATEGORIE_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 TARIF_UNITAIRE)
-	VALUES
-		((SELECT ID_CATEGORIE_VILLAGE FROM CATEGORIE_VILLAGE WHERE NO_CATEGORIE = 3),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'B2'),
-		 70);
-INSERT INTO
-	TARIF_NUITEE
-		(ID_CATEGORIE_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 TARIF_UNITAIRE)
-	VALUES
-		((SELECT ID_CATEGORIE_VILLAGE FROM CATEGORIE_VILLAGE WHERE NO_CATEGORIE = 3),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'C1'),
-		 25);
-INSERT INTO
-	TARIF_NUITEE
-		(ID_CATEGORIE_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 TARIF_UNITAIRE)
-	VALUES
-		((SELECT ID_CATEGORIE_VILLAGE FROM CATEGORIE_VILLAGE WHERE NO_CATEGORIE = 3),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'C2'),
-		 35);
-INSERT INTO
-	TARIF_NUITEE
-		(ID_CATEGORIE_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 TARIF_UNITAIRE)
-	VALUES
-		((SELECT ID_CATEGORIE_VILLAGE FROM CATEGORIE_VILLAGE WHERE NO_CATEGORIE = 3),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'D1'),
-		 25);
-INSERT INTO
-	TARIF_NUITEE
-		(ID_CATEGORIE_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 TARIF_UNITAIRE)
-	VALUES
-		((SELECT ID_CATEGORIE_VILLAGE FROM CATEGORIE_VILLAGE WHERE NO_CATEGORIE = 3),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'D2'),
-		 35);
-INSERT INTO
-	TARIF_NUITEE
-		(ID_CATEGORIE_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 TARIF_UNITAIRE)
-	VALUES
-		((SELECT ID_CATEGORIE_VILLAGE FROM CATEGORIE_VILLAGE WHERE NO_CATEGORIE = 3),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'D3'),
-		 55);
-
-/*===============================================================================
-     Table VILLAGE: 4 villages
-/*===============================================================================*/
-SAVEPOINT VILLAGES;
-INSERT INTO
-	VILLAGE
-		(ID_VILLAGE,
-         NOM_VILLAGE,
-		 VILLE,
-		 PAYS,
-		 ID_CATEGORIE_VILLAGE,
-		 PRIX_TRANSPORT)
-	VALUES
-		(SEQ_ID_VILLAGE.NEXTVAL,
-         'Casa-Dali',
-		 'Figueiras',
-		 'Espagne',
-		 (SELECT ID_CATEGORIE_VILLAGE FROM CATEGORIE_VILLAGE WHERE NO_CATEGORIE = 3),
-		 1059);
-INSERT INTO
-	VILLAGE
-		(ID_VILLAGE,
-         NOM_VILLAGE,
-		 VILLE,
-		 PAYS,
-		 ID_CATEGORIE_VILLAGE,
-		 PRIX_TRANSPORT)
-	VALUES
-		(SEQ_ID_VILLAGE.NEXTVAL,
-         'Porto-Nuevo',
-		 'Valencia',
-		 'Espagne',
-		 (SELECT ID_CATEGORIE_VILLAGE FROM CATEGORIE_VILLAGE WHERE NO_CATEGORIE = 2),
-		 949);
-INSERT INTO
-	VILLAGE
-		(ID_VILLAGE,
-         NOM_VILLAGE,
-		 VILLE,
-		 PAYS,
-		 ID_CATEGORIE_VILLAGE,
-		 PRIX_TRANSPORT)
-	VALUES
-		(SEQ_ID_VILLAGE.NEXTVAL,
-         'Cuidad Blanca',
-		 'Barcelona',
-		 'Espagne',
-		 (SELECT ID_CATEGORIE_VILLAGE FROM CATEGORIE_VILLAGE WHERE NO_CATEGORIE = 3),
-		 800);
-INSERT INTO
-	VILLAGE
-		(ID_VILLAGE,
-         NOM_VILLAGE,
-		 VILLE,
-		 PAYS,
-		 ID_CATEGORIE_VILLAGE,
-		 PRIX_TRANSPORT)
-	VALUES
-		(SEQ_ID_VILLAGE.NEXTVAL,
-         'Kouros',
-		 'Corfou',
-		 'Grece',
-		 (SELECT ID_CATEGORIE_VILLAGE FROM CATEGORIE_VILLAGE WHERE NO_CATEGORIE = 3),
-		 1239);
-
-/*===============================================================================
-     Table LOGEMENT
-/*===============================================================================*/
-SAVEPOINT LOGEMENTS;
-/* logements Village Casa-Dali */
--- logements Casa-Dali - type B2
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         8,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Casa-Dali'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'B2'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         9,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Casa-Dali'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'B2'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         11,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Casa-Dali'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'B2'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         18,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Casa-Dali'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'B2'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         19,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Casa-Dali'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'B2'),
-		 NULL);
--- logements Casa-Dali - type C2
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         100,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Casa-Dali'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'C2'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         101,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Casa-Dali'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'C2'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         102,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Casa-Dali'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'C2'),
-		 NULL);
--- logements Casa-Dali - type D1
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         103,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Casa-Dali'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'D1'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         104,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Casa-Dali'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'D1'),
-		 NULL);
--- logements Casa-Dali - type D2
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         105,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Casa-Dali'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'D2'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         106,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Casa-Dali'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'D2'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         107,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Casa-Dali'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'D2'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         108,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Casa-Dali'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'D2'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         109,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Casa-Dali'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'D2'),
-		 NULL);
-/* logements Village Porto-Nuevo */
--- logements Porto-Nuevo - type C2
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         1,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Porto-Nuevo'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'C2'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         2,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Porto-Nuevo'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'C2'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         3,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Porto-Nuevo'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'C2'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         108,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Porto-Nuevo'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'C2'),
-		 NULL);
-/* logements Village Cuidad Blanca */
--- logements Cuidad Blanca - type A1
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         1,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Cuidad Blanca'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'A1'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         2,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Cuidad Blanca'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'A1'),
-		 NULL);
--- logements Ciudad Blanca - type A2
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         3,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Cuidad Blanca'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'A2'),
-		 NULL);
--- logements Ciudad Blanca - type A3
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         10,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Cuidad Blanca'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'A3'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         20,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Cuidad Blanca'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'A3'),
-		 NULL);
-
-/* logements Village Kouros */
--- logements Kouros - type A1
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         4,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'A1'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         5,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'A1'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         6,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'A1'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         7,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'A1'),
-		 NULL);
--- logements Kouros - type A3
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         10,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'A3'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         11,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'A3'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         13,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'A3'),
-		 NULL);
--- logements Kouros - type A4
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         1,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'A4'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         2,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'A4'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         3,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'A4'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         16,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'A4'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         17,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'A4'),
-		 NULL);
--- logements Kouros - type B2
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         8,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'B2'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         9,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'B2'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         18,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'B2'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         19,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'B2'),
-		 NULL);
--- logements Kouros - type C1
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         106,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'C1'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         107,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'C1'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         108,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'C1'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         109,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'C1'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         110,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'C1'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         111,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'C1'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         112,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'C1'),
-		 NULL);
--- logements Kouros - type C2
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         100,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'C2'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         101,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'C2'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         102,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'C2'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         103,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'C2'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         104,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'C2'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         105,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'C2'),
-		 NULL);
--- logements Kouros - type D1
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         113,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'D1'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         114,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'D1'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         115,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'D1'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         116,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'D1'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         117,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'D1'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         118,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'D1'),
-		 NULL);
--- logements Kouros - type D2
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         119,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'D2'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         120,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'D2'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         121,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'D2'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         122,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'D2'),
-		 NULL);
-INSERT INTO
-	LOGEMENT
-		(ID_LOGEMENT,
-         NO_LOGEMENT,
-		 ID_VILLAGE,
-		 ID_TYPE_LOGEMENT,
-		 COMMENTAIRE)
-	VALUES
-		(SEQ_ID_LOGEMENT.NEXTVAL,
-         123,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'),
-		 (SELECT ID_TYPE_LOGEMENT FROM TYPE_LOGEMENT WHERE CODE_TYPE_LOGEMENT = 'D2'),
-		 NULL);
+		(3,
+		 'RH',
+		 'Navel',
+		 'P',
+		 'Planification',
+		 NULL);
+INSERT INTO
+	DOCUMENT_PRJ
+		(NO_DOCUMENT,
+		 NOM_PROJET,
+		 NOM_CLIENT,
+		 TYPE_DOC,
+		 TITRE,
+		 DESCRIPTION)
+	VALUES
+		(4,
+		 'RH',
+		 'Navel',
+		 'G',
+		 'User Guide',
+		 NULL);
+INSERT INTO
+	DOCUMENT_PRJ
+		(NO_DOCUMENT,
+		 NOM_PROJET,
+		 NOM_CLIENT,
+		 TYPE_DOC,
+		 TITRE,
+		 DESCRIPTION)
+	VALUES
+		(99,
+		 'RH',
+		 'Navel',
+		 'C',
+		 'Bilan',
+		 NULL);
+--=====================================================================================
+-- Projet 'EnLigne', 'Navel': 1 document		 
+INSERT INTO
+	DOCUMENT_PRJ
+		(NO_DOCUMENT,
+		 NOM_PROJET,
+		 NOM_CLIENT,
+		 TYPE_DOC,
+		 TITRE,
+		 DESCRIPTION)
+	VALUES
+		(1,
+		 'EnLigne',
+		 'Navel',
+		 'A',
+		 'Analyse',
+		 NULL);
+--=====================================================================================
+-- Projet 'Production', 'Navel': 0 documents
+--=====================================================================================
+-- Projet 'RH', 'Grahams': 2 documents
+INSERT INTO
+	DOCUMENT_PRJ
+		(NO_DOCUMENT,
+		 NOM_PROJET,
+		 NOM_CLIENT,
+		 TYPE_DOC,
+		 TITRE,
+		 DESCRIPTION)
+	VALUES
+		(1,
+		 'RH',
+		 'Grahams',
+		 'A',
+		 'Backlog',
+		 NULL);
+INSERT INTO
+	DOCUMENT_PRJ
+		(NO_DOCUMENT,
+		 NOM_PROJET,
+		 NOM_CLIENT,
+		 TYPE_DOC,
+		 TITRE,
+		 DESCRIPTION)
+	VALUES
+		(2,
+		 'RH',
+		 'Grahams',
+		 'P',
+		 'Planification',
+		  NULL);
+--=====================================================================================
+-- Projet 'Stocks', 'Bazoo': 0 document
+--=====================================================================================
+-- Projet 'Ventes', 'Bazoo': 1 document
+INSERT INTO
+	DOCUMENT_PRJ
+		(NO_DOCUMENT,
+		 NOM_PROJET,
+		 NOM_CLIENT,
+		 TYPE_DOC,
+		 TITRE,
+		 DESCRIPTION)
+	VALUES
+		(99,
+		 'Ventes',
+		 'Bazoo',
+		 'C',
+		 'Bilan',
+		 NULL);
+--=====================================================================================
+-- Projet 'Inventaire', 'GMC': 0 documents	
+--=====================================================================================
+-- Projet 'RH', 'KPMG': 3 documents
+INSERT INTO
+	DOCUMENT_PRJ
+		(NO_DOCUMENT,
+		 NOM_PROJET,
+		 NOM_CLIENT,
+		 TYPE_DOC,
+		 TITRE,
+		 DESCRIPTION)
+	VALUES
+		(1,
+		 'RH',
+		 'KPMG',
+		 'A',
+		 'Analyse',
+		 NULL);
+INSERT INTO
+	DOCUMENT_PRJ
+		(NO_DOCUMENT,
+		 NOM_PROJET,
+		 NOM_CLIENT,
+		 TYPE_DOC,
+		 TITRE,
+		 DESCRIPTION)
+	VALUES
+		(2,
+		 'RH',
+		 'KPMG',
+		 'P',
+		 'Planification',
+		  NULL);
+INSERT INTO
+	DOCUMENT_PRJ
+		(NO_DOCUMENT,
+		 NOM_PROJET,
+		 NOM_CLIENT,
+		 TYPE_DOC,
+		 TITRE,
+		 DESCRIPTION)
+	VALUES
+		(3,
+		 'RH',
+		 'KPMG',
+		 'P',
+		 'MRD',
+		  NULL);
+--=====================================================================================
+-- Projet 'Pilotage', 'KPMG': 0 documents
 
 COMMIT;
 
-/* **********************************************************
-	DML Insert - SCRIPT No 2
-	Schema MRD:	"Cas Village Vacances"
-	Auteur:		Sylvie Monjal - Cegep de Ste-Foy
-***********************************************************/
+ALTER TABLE EMPLOYE
+ADD -- column
+	NO_SUPERVISEUR	SMALLINT	NULL;
 
-/* AVANT L'EXeCUTION DE CE SCRIPT No 2:
-	- EXeCUTEZ LE SCRIPT "Vacances-DMLInsert1.sql"
-*/
+ALTER TABLE EMPLOYE
+ADD CONSTRAINT FK_EMPLOYE_SUPERVISEUR
+					FOREIGN KEY (NO_SUPERVISEUR)
+					REFERENCES EMPLOYE (NO_EMPLOYE);
+					
+----------------------					
+					
+UPDATE
+	EMPLOYE
+SET
+	NO_SUPERVISEUR = 4
+WHERE
+	UPPER(NOM_DEPARTEMENT) = 'INFO';
 
-/* APRÈS L'EXeCUTION DE CE SCRIPT No 2:
-	- N'OUBLIEZ PAS DE FAIRE UN COMMIT SI TOUT A BIEN FONCTIONNe*/
+UPDATE
+	EMPLOYE
+SET
+	NO_SUPERVISEUR = 8
+WHERE
+	UPPER(NOM_DEPARTEMENT) = 'VENTE';
+	
+COMMIT;
 
-/*===============================================================================
-     Table CLIENT
-/*===============================================================================*/
-SAVEPOINT CLIENTS;
-INSERT INTO
-	CLIENT
-		(ID_CLIENT,
-		 NOM,
-		 PRENOM,
-		 SEXE,
-		 TEL_DOMICILE,
-		 ADRESSE)
-	VALUES
-		(SEQ_ID_CLIENT.NEXTVAL,
-		 'Daho',
-		 'Etienne',
-		 'M',
-		 '(450)345-2511',
-		 'Montreal');
-
-INSERT INTO
-	CLIENT
-		(ID_CLIENT,
-		 NOM,
-		 PRENOM,
-		 SEXE,
-		 TEL_DOMICILE,
-		 ADRESSE)
-	VALUES
-		(SEQ_ID_CLIENT.NEXTVAL,
-		 'Fiset',
-		 'Raymond',
-		 'M',
-		 '(514)345-6513',
-		 '159, Av Turcotte, G1K 4X6, Montreal');
-INSERT INTO
-    CLIENT
-		(ID_CLIENT,
-		 NOM,
-		 PRENOM,
-		 SEXE,
-		 TEL_DOMICILE,
-		 ADRESSE)
-	VALUES
-		(SEQ_ID_CLIENT.NEXTVAL,
-		 'Gosselin',
-		 'Yvonne',
-		 'F',
-		 '(418)688-4212',
-		 '159, Rue Brown, Quebec');
-INSERT INTO
-	CLIENT
-		(ID_CLIENT,
-		 NOM,
-		 PRENOM,
-		 SEXE,
-		 TEL_DOMICILE,
-		 ADRESSE)
-	VALUES
-		(SEQ_ID_CLIENT.NEXTVAL,
-		 'Dupuis',
-		 'Pierre',
-		 'M',
-		 '(514)345-2511',
-		 'Des Erables, MONTREAL');
-INSERT INTO
-	CLIENT
-		(ID_CLIENT,
-		 NOM,
-		 PRENOM,
-		 SEXE,
-		 TEL_DOMICILE,
-		 ADRESSE)
-	VALUES
-		(SEQ_ID_CLIENT.NEXTVAL,
-		 'Pare',
-		 'Marine',
-		 'F',
-		 '(445)987-9351',
-		 'Magog');
-INSERT INTO
-	CLIENT
-		(ID_CLIENT,
-		 NOM,
-		 PRENOM,
-		 SEXE,
-		 TEL_DOMICILE,
-		 ADRESSE)
-	VALUES
-		(SEQ_ID_CLIENT.NEXTVAL,
-		 'Caron',
-		 'Leo',
-		 'M',
-		 '(514)412-2296',
-		 '12, ROYALE, MONTREAL');
-INSERT INTO
-	CLIENT
-		(ID_CLIENT,
-		 NOM,
-		 PRENOM,
-		 SEXE,
-		 TEL_DOMICILE,
-		 ADRESSE)
-	VALUES
-		(SEQ_ID_CLIENT.NEXTVAL,
-		 'St-Onge',
-		 'eric',
-		 'M',
-		 '(514)679-6600',
-		 '181, St-Louis, Montreal');
-INSERT INTO
-	CLIENT
-		(ID_CLIENT,
-		 NOM,
-		 PRENOM,
-		 SEXE,
-		 TEL_DOMICILE,
-		 ADRESSE)
-	VALUES
-		(SEQ_ID_CLIENT.NEXTVAL,
-		 'Plante',
-		 'Josee',
-		 'F',
-		 '(514)236-5510',
-		 '471, Veillon, Montreal, Qc');
-INSERT INTO
-	CLIENT
-		(ID_CLIENT,
-		 NOM,
-		 PRENOM,
-		 SEXE,
-		 TEL_DOMICILE,
-		 ADRESSE)
-	VALUES
-		(SEQ_ID_CLIENT.NEXTVAL,
-		 'Fortin',
-		 'Marine',
-		 'F',
-		 '(418)412-2296',
-		 '412, 3Rue, QUEBEC');
-INSERT INTO
-	CLIENT
-		(ID_CLIENT,
-		 NOM,
-		 PRENOM,
-		 SEXE,
-		 TEL_DOMICILE,
-		 ADRESSE)
-	VALUES
-		(SEQ_ID_CLIENT.NEXTVAL,
-		 'Plante',
-		 'Josee',
-		 'F',
-		 '(514)238-5510',
-		 '471, Veillon, Montreal, Qc');
-INSERT INTO
-	CLIENT
-		(ID_CLIENT,
-		 NOM,
-		 PRENOM,
-		 SEXE,
-		 TEL_DOMICILE,
-		 ADRESSE)
-	VALUES
-		(SEQ_ID_CLIENT.NEXTVAL,
-		 'St-Onge',
-		 'eric',
-		 'M',
-		 '(514)412-2296',
-		 '12, ROYALE, MONTREAL');
-INSERT INTO
-	CLIENT
-		(ID_CLIENT,
-		 NOM,
-		 PRENOM,
-		 SEXE,
-		 TEL_DOMICILE,
-		 ADRESSE)
-	VALUES
-		(SEQ_ID_CLIENT.NEXTVAL,
-		 'Fiset',
-		 'Valerie',
-		 'F',
-		 '(418)772-6453',
-		 NULL);
-INSERT INTO
-	CLIENT
-		(ID_CLIENT,
-		 NOM,
-		 PRENOM,
-		 SEXE,
-		 TEL_DOMICILE,
-		 ADRESSE)
-	VALUES
-		(SEQ_ID_CLIENT.NEXTVAL,
-		 'Roy',
-		 'Paul',
-		 'M',
-		 '(514)772-6757',
-		 '200, St-jean, montreal');
-INSERT INTO
-	CLIENT
-		(ID_CLIENT,
-		 NOM,
-		 PRENOM,
-		 SEXE,
-		 TEL_DOMICILE,
-		 ADRESSE)
-	VALUES
-		(SEQ_ID_CLIENT.NEXTVAL,
-		 'Dallaire',
-		 'Karine',
-		 'F',
-		 '(415)231-2512',
-		 'megantic');
-
-/*===============================================================================
-     Table RESERVATION - Table SEJOUR
-/*===============================================================================*/
-
-SAVEPOINT RESERVATIONS;
-
--- == Village Casa-Dali ==
-SAVEPOINT DEBUT_RES;
--- debut reservation
-/* reservation 1: 5 nuits - 2 logements */
-INSERT INTO
-	RESERVATION
-		(ID_RESERVATION,
-		 DATE_RESERVATION,
-		 ID_CLIENT,
-		 ID_VILLAGE)
-	VALUES
-		(SEQ_ID_RESERVATION.NEXTVAL,
-		 TO_DATE('12/02/2016','dd/mm/yyyy'),
-		 1,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Casa-Dali'));
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('15/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 108 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 4);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('15/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 109 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-         SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('16/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 108 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 4);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('16/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 109 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('17/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 108 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 4);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('17/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 109 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('18/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 108 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 4);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('18/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 109 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('19/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 108 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 4);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('19/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 109 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
--- fin reservation
-SAVEPOINT DEBUT_RES;
--- debut reservation
-/* reservation 2: 6 nuits - 2 logements */
-INSERT INTO
-	RESERVATION
-		(ID_RESERVATION,
-		 DATE_RESERVATION,
-		 ID_CLIENT,
-		 ID_VILLAGE)
-	VALUES
-		(SEQ_ID_RESERVATION.NEXTVAL,
-		 TO_DATE('13/02/2016','dd/mm/yyyy'),
-		 8,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Casa-Dali'));
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('13/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 18 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('13/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 19 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('14/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 18 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('14/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 19 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('15/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 18 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('15/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 19 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('16/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 18 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('16/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 19 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('17/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 18 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('17/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 19 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('18/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 18 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('18/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 19 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
--- fin reservation
-SAVEPOINT DEBUT_RES;
--- debut reservation
-
-SAVEPOINT DEBUT_RES;
--- debut reservation
-/* reservation 3: 4 nuits - 1 logement */
-INSERT INTO
-	RESERVATION
-		(ID_RESERVATION,
-		 DATE_RESERVATION,
-		 ID_CLIENT,
-		 ID_VILLAGE)
-	VALUES
-		(SEQ_ID_RESERVATION.NEXTVAL,
-		 TO_DATE('15/02/2016','dd/mm/yyyy'),
-		 7,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Casa-Dali'));
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('9/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 108 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 3);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('10/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 108 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 3);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('11/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 108 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 3);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('12/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 108 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 3);
--- fin reservation
-SAVEPOINT DEBUT_RES;
--- debut reservation
-/* reservation 4: 7 nuits - 5 logements */
-INSERT INTO
-	RESERVATION
-		(ID_RESERVATION,
-		 DATE_RESERVATION,
-		 ID_CLIENT,
-		 ID_VILLAGE)
-	VALUES
-		(SEQ_ID_RESERVATION.NEXTVAL,
-		 TO_DATE('24/02/2016','dd/mm/yyyy'),
-		 2,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Casa-Dali'));
-INSERT INTO
-    SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('17/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 100 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('17/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 101 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('17/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 102 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('17/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 104 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 5);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('17/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 106 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 4);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('18/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 100 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('18/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 101 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('18/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 102 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('18/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 104 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 5);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('18/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 106 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 4);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('19/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 100 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('19/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 101 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('19/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 102 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('19/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 104 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 5);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('19/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 106 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 4);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('20/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 100 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('20/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 101 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('20/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 102 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('20/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 104 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 5);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('20/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 106 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 4);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('21/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 100 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('21/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 101 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('21/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 102 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('21/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 104 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 5);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('21/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 106 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 4);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('22/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 100 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('22/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 101 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('22/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 102 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('22/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 104 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 5);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('22/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 106 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 4);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('23/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 100 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('23/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 101 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('23/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 102 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('23/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 104 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 5);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('23/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 106 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 4);
--- fin reservation
-SAVEPOINT DEBUT_RES;
-/* reservation 5: 6 nuits - 2 logements */
--- debut reservation
-INSERT INTO
-	RESERVATION
-		(ID_RESERVATION,
-		 DATE_RESERVATION,
-		 ID_CLIENT,
-		 ID_VILLAGE)
-	VALUES
-		(SEQ_ID_RESERVATION.NEXTVAL,
-		 TO_DATE('19/02/2016','dd/mm/yyyy'),
-		 5,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Casa-Dali'));
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('20/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 103 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 5);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('20/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 108 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 4);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('21/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 103 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 5);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('21/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 108 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 4);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('22/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 103 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 5);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('22/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 108 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 4);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('23/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 103 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 5);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('23/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 108 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 4);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('24/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 103 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 5);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('24/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 108 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 4);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('25/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 103 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 5);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('25/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 108 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 4);
--- fin reservation
-SAVEPOINT DEBUT_RES;
--- debut reservation
-/* reservation 6: 4 nuits - 1 logement */
-INSERT INTO
-	RESERVATION
-		(ID_RESERVATION,
-		 DATE_RESERVATION,
-		 ID_CLIENT,
-		 ID_VILLAGE)
-	VALUES
-		(SEQ_ID_RESERVATION.NEXTVAL,
-		 TO_DATE('31/01/2016','dd/mm/yyyy'),
-		 12,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Casa-Dali'));
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('06/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 19 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('07/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 19 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('08/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 19 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('09/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 19 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
--- fin reservation
-SAVEPOINT DEBUT_RES;
-/* reservation 7: 4 nuits - 1 logement+tous les logements de type C2 du village */
--- debut reservation
-INSERT INTO
-	RESERVATION
-		(ID_RESERVATION,
-		 DATE_RESERVATION,
-		 ID_CLIENT,
-		 ID_VILLAGE)
-	VALUES
-		(SEQ_ID_RESERVATION.NEXTVAL,
-		 TO_DATE('12/12/2015','dd/mm/yyyy'),
-		 9,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Casa-Dali'));
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	SELECT
-		SEQ_ID_SEJOUR.NEXTVAL,
-        TO_DATE('26/03/2016','dd/mm/yyyy'),
-		LOGEMENT.ID_LOGEMENT,
-		SEQ_ID_RESERVATION.CURRVAL,
-		2
-	FROM
-		LOGEMENT
-            INNER JOIN VILLAGE
-                ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-            INNER JOIN TYPE_LOGEMENT
-                ON LOGEMENT.ID_TYPE_LOGEMENT = TYPE_LOGEMENT.ID_TYPE_LOGEMENT
-	WHERE
-		VILLAGE.NOM_VILLAGE = 'Casa-Dali'
-		AND
-		TYPE_LOGEMENT.CODE_TYPE_LOGEMENT = 'C2';
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('26/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 106 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 4);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	SELECT
-		SEQ_ID_SEJOUR.NEXTVAL,
-        TO_DATE('27/03/2016','dd/mm/yyyy'),
-		LOGEMENT.ID_LOGEMENT,
-		SEQ_ID_RESERVATION.CURRVAL,
-		2
-	FROM
-		LOGEMENT
-            INNER JOIN VILLAGE
-                ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-            INNER JOIN TYPE_LOGEMENT
-                ON LOGEMENT.ID_TYPE_LOGEMENT = TYPE_LOGEMENT.ID_TYPE_LOGEMENT
-	WHERE
-		VILLAGE.NOM_VILLAGE = 'Casa-Dali'
-		AND
-		TYPE_LOGEMENT.CODE_TYPE_LOGEMENT = 'C2';
-INSERT INTO
-    SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('27/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 106 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 4);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	SELECT
-		SEQ_ID_SEJOUR.NEXTVAL,
-        TO_DATE('28/03/2016','dd/mm/yyyy'),
-		LOGEMENT.ID_LOGEMENT,
-		SEQ_ID_RESERVATION.CURRVAL,
-		2
-	FROM
-		LOGEMENT
-            INNER JOIN VILLAGE
-                ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-            INNER JOIN TYPE_LOGEMENT
-                ON LOGEMENT.ID_TYPE_LOGEMENT = TYPE_LOGEMENT.ID_TYPE_LOGEMENT
-	WHERE
-		VILLAGE.NOM_VILLAGE = 'Casa-Dali'
-		AND
-		TYPE_LOGEMENT.CODE_TYPE_LOGEMENT = 'C2';
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('28/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 106 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-         SEQ_ID_RESERVATION.CURRVAL,
-		 4);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	SELECT
-		SEQ_ID_SEJOUR.NEXTVAL,
-        TO_DATE('29/03/2016','dd/mm/yyyy'),
-		LOGEMENT.ID_LOGEMENT,
-		SEQ_ID_RESERVATION.CURRVAL,
-		2
-	FROM
-		LOGEMENT
-            INNER JOIN VILLAGE
-                ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-            INNER JOIN TYPE_LOGEMENT
-                ON LOGEMENT.ID_TYPE_LOGEMENT = TYPE_LOGEMENT.ID_TYPE_LOGEMENT
-	WHERE
-		VILLAGE.NOM_VILLAGE = 'Casa-Dali'
-		AND
-		TYPE_LOGEMENT.CODE_TYPE_LOGEMENT = 'C2';
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('29/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 106 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-         SEQ_ID_RESERVATION.CURRVAL,
-		 4);
-
--- fin reservation
-SAVEPOINT DEBUT_RES;
--- debut reservation
-/* reservation 8: 3 nuits - tous les logements de type D2 du village */
-INSERT INTO
-	RESERVATION
-		(ID_RESERVATION,
-		 DATE_RESERVATION,
-		 ID_CLIENT,
-		 ID_VILLAGE)
-	VALUES
-		(SEQ_ID_RESERVATION.NEXTVAL,
-		 TO_DATE('01/11/2015','dd/mm/yyyy'),
-		 6,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Casa-Dali'));
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	SELECT
-		SEQ_ID_SEJOUR.NEXTVAL,
-        TO_DATE('26/02/2016','dd/mm/yyyy'),
-		LOGEMENT.ID_LOGEMENT,
-		SEQ_ID_RESERVATION.CURRVAL,
-		4
-	FROM
-		LOGEMENT
-            INNER JOIN VILLAGE
-                ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-            INNER JOIN TYPE_LOGEMENT
-                ON LOGEMENT.ID_TYPE_LOGEMENT = TYPE_LOGEMENT.ID_TYPE_LOGEMENT
-	WHERE
-		VILLAGE.NOM_VILLAGE = 'Casa-Dali'
-		AND
-		TYPE_LOGEMENT.CODE_TYPE_LOGEMENT = 'D2';
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	SELECT
-		SEQ_ID_SEJOUR.NEXTVAL,
-        TO_DATE('27/02/2016','dd/mm/yyyy'),
-		LOGEMENT.ID_LOGEMENT,
-		SEQ_ID_RESERVATION.CURRVAL,
-		4
-	FROM
-		LOGEMENT
-            INNER JOIN VILLAGE
-                ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-            INNER JOIN TYPE_LOGEMENT
-                ON LOGEMENT.ID_TYPE_LOGEMENT = TYPE_LOGEMENT.ID_TYPE_LOGEMENT
-	WHERE
-		VILLAGE.NOM_VILLAGE = 'Casa-Dali'
-		AND
-		TYPE_LOGEMENT.CODE_TYPE_LOGEMENT = 'D2';
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	SELECT
-		SEQ_ID_SEJOUR.NEXTVAL,
-        TO_DATE('28/02/2016','dd/mm/yyyy'),
-		LOGEMENT.ID_LOGEMENT,
-		SEQ_ID_RESERVATION.CURRVAL,
-		4
-	FROM
-		LOGEMENT
-            INNER JOIN VILLAGE
-                ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-            INNER JOIN TYPE_LOGEMENT
-                ON LOGEMENT.ID_TYPE_LOGEMENT = TYPE_LOGEMENT.ID_TYPE_LOGEMENT
-	WHERE
-		VILLAGE.NOM_VILLAGE = 'Casa-Dali'
-		AND
-		TYPE_LOGEMENT.CODE_TYPE_LOGEMENT = 'D2';
-
--- fin reservation
-SAVEPOINT DEBUT_RES;
--- debut reservation
-/* reservation 9: 6 nuits - 1 logement */
-INSERT INTO
-	RESERVATION
-		(ID_RESERVATION,
-		 DATE_RESERVATION,
-		 ID_CLIENT,
-		 ID_VILLAGE)
-	VALUES
-		(SEQ_ID_RESERVATION.NEXTVAL,
-		 TO_DATE('19/02/2016','dd/mm/yyyy'),
-		 7,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Casa-Dali'));
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('31/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 105 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-         SEQ_ID_RESERVATION.CURRVAL,
-		 6);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('01/04/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 105 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 6);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('02/04/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 105 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 6);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('03/04/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 105 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 6);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('04/04/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 105 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 6);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('05/04/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 105 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 6);
--- fin reservation
-/* reservation 10 : 2 nuits - 1 logement */
-INSERT INTO
-	RESERVATION
-		(ID_RESERVATION,
-		 DATE_RESERVATION,
-		 ID_CLIENT,
-		 ID_VILLAGE)
-	VALUES
-		(SEQ_ID_RESERVATION.NEXTVAL,
-		 TO_DATE('31/01/2016','dd/mm/yyyy'),
-		 12,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Casa-Dali'));
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('03/04/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 108 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('04/04/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 108 AND
-            VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
--- fin reservation */
-
-SAVEPOINT DEBUT_RES;
--- debut reservation
-/* reservation 11: 37 nuits - 1 logement */
-INSERT INTO
-	RESERVATION
-		(ID_RESERVATION,
-		 DATE_RESERVATION,
-		 ID_CLIENT,
-		 ID_VILLAGE)
-	VALUES
-		(SEQ_ID_RESERVATION.NEXTVAL,
-		 TO_DATE('02/01/2016','dd/mm/yyyy'),
-		 14,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Casa-Dali'));
-
-DECLARE
-	DATE_SEJ DATE := TO_DATE('24/02/2016','dd/mm/yyyy');
-BEGIN
-	FOR JOUR IN 1 .. (TO_DATE('02/04/2016','dd/mm/yyyy') - TO_DATE('24/02/2016','dd/mm/yyyy')) LOOP
-		INSERT INTO
-            SEJOUR
-                (ID_SEJOUR,
-                 DATE_SEJOUR,
-                 ID_LOGEMENT,
-                 ID_RESERVATION,
-                 NB_PERSONNES)
-            VALUES
-                (SEQ_ID_SEJOUR.NEXTVAL,
-                 DATE_SEJ,
-                 (SELECT
-                    ID_LOGEMENT
-                  FROM
-                    LOGEMENT
-                        INNER JOIN VILLAGE
-                            ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-                  WHERE
-                    LOGEMENT.NO_LOGEMENT = 9 AND
-                    VILLAGE.NOM_VILLAGE = 'Casa-Dali'),
-                 SEQ_ID_RESERVATION.CURRVAL,
-                 2);
-		DATE_SEJ := DATE_SEJ + 1;
-	END LOOP;
-END;
-/
--- fin reservation
-
--- == Village Porto-Nuevo ==
-SAVEPOINT DEBUT_RES;
--- debut reservation
-/* reservation 12: 7 nuits - tous les logements village */
-INSERT INTO
-	RESERVATION
-		(ID_RESERVATION,
-		 DATE_RESERVATION,
-		 ID_CLIENT,
-		 ID_VILLAGE)
-	VALUES
-		(SEQ_ID_RESERVATION.NEXTVAL,
-		 TO_DATE('15/09/2015','dd/mm/yyyy'),
-		 1,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Porto-Nuevo'));
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	SELECT
-		SEQ_ID_SEJOUR.NEXTVAL,
-        TO_DATE('27/12/2015','dd/mm/yyyy'),
-		LOGEMENT.ID_LOGEMENT,
-		SEQ_ID_RESERVATION.CURRVAL,
-		2
-	FROM
-		LOGEMENT
-            INNER JOIN VILLAGE
-                ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-	WHERE
-		VILLAGE.NOM_VILLAGE = 'Porto-Nuevo';
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	SELECT
-		SEQ_ID_SEJOUR.NEXTVAL,
-        TO_DATE('28/12/2015','dd/mm/yyyy'),
-		LOGEMENT.ID_LOGEMENT,
-		SEQ_ID_RESERVATION.CURRVAL,
-		2
-	FROM
-		LOGEMENT
-            INNER JOIN VILLAGE
-                ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-	WHERE
-		VILLAGE.NOM_VILLAGE = 'Porto-Nuevo';
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	SELECT
-		SEQ_ID_SEJOUR.NEXTVAL,
-        TO_DATE('29/12/2015','dd/mm/yyyy'),
-		LOGEMENT.ID_LOGEMENT,
-		SEQ_ID_RESERVATION.CURRVAL,
-		2
-	FROM
-		LOGEMENT
-            INNER JOIN VILLAGE
-                ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-	WHERE
-		VILLAGE.NOM_VILLAGE = 'Porto-Nuevo';
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	SELECT
-		SEQ_ID_SEJOUR.NEXTVAL,
-        TO_DATE('30/12/2015','dd/mm/yyyy'),
-		LOGEMENT.ID_LOGEMENT,
-		SEQ_ID_RESERVATION.CURRVAL,
-		2
-	FROM
-		LOGEMENT
-            INNER JOIN VILLAGE
-                ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-	WHERE
-		VILLAGE.NOM_VILLAGE = 'Porto-Nuevo';
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	SELECT
-		SEQ_ID_SEJOUR.NEXTVAL,
-        TO_DATE('31/12/2015','dd/mm/yyyy'),
-		LOGEMENT.ID_LOGEMENT,
-		SEQ_ID_RESERVATION.CURRVAL,
-		2
-	FROM
-		LOGEMENT
-            INNER JOIN VILLAGE
-                ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-	WHERE
-		VILLAGE.NOM_VILLAGE = 'Porto-Nuevo';
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	SELECT
-		SEQ_ID_SEJOUR.NEXTVAL,
-        TO_DATE('01/01/2016','dd/mm/yyyy'),
-		LOGEMENT.ID_LOGEMENT,
-		SEQ_ID_RESERVATION.CURRVAL,
-		2
-	FROM
-		LOGEMENT
-            INNER JOIN VILLAGE
-                ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-	WHERE
-		VILLAGE.NOM_VILLAGE = 'Porto-Nuevo';
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	SELECT
-		SEQ_ID_SEJOUR.NEXTVAL,
-        TO_DATE('02/01/2016','dd/mm/yyyy'),
-		LOGEMENT.ID_LOGEMENT,
-		SEQ_ID_RESERVATION.CURRVAL,
-		2
-	FROM
-		LOGEMENT
-            INNER JOIN VILLAGE
-                ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-	WHERE
-		VILLAGE.NOM_VILLAGE = 'Porto-Nuevo';
--- fin reservation
-SAVEPOINT DEBUT_RES;
-
--- debut reservation
-/* reservation 13: 5 nuits - tous les logements village */
-INSERT INTO
-	RESERVATION
-		(ID_RESERVATION,
-		 DATE_RESERVATION,
-		 ID_CLIENT,
-		 ID_VILLAGE)
-	VALUES
-		(SEQ_ID_RESERVATION.NEXTVAL,
-		 TO_DATE('17/02/2016','dd/mm/yyyy'),
-		 3,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Porto-Nuevo'));
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	SELECT
-		SEQ_ID_SEJOUR.NEXTVAL,
-        TO_DATE('02/03/2017','dd/mm/yyyy'),
-		LOGEMENT.ID_LOGEMENT,
-		SEQ_ID_RESERVATION.CURRVAL,
-		2
-	FROM
-		LOGEMENT
-            INNER JOIN VILLAGE
-                ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-	WHERE
-		VILLAGE.NOM_VILLAGE = 'Porto-Nuevo';
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	SELECT
-		SEQ_ID_SEJOUR.NEXTVAL,
-        TO_DATE('03/03/2017','dd/mm/yyyy'),
-		LOGEMENT.ID_LOGEMENT,
-		SEQ_ID_RESERVATION.CURRVAL,
-		2
-	FROM
-		LOGEMENT
-            INNER JOIN VILLAGE
-                ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-	WHERE
-		VILLAGE.NOM_VILLAGE = 'Porto-Nuevo';
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	SELECT
-		SEQ_ID_SEJOUR.NEXTVAL,
-        TO_DATE('04/03/2017','dd/mm/yyyy'),
-		LOGEMENT.ID_LOGEMENT,
-		SEQ_ID_RESERVATION.CURRVAL,
-		2
-	FROM
-		LOGEMENT
-            INNER JOIN VILLAGE
-                ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-	WHERE
-		VILLAGE.NOM_VILLAGE = 'Porto-Nuevo';
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	SELECT
-		SEQ_ID_SEJOUR.NEXTVAL,
-        TO_DATE('05/03/2017','dd/mm/yyyy'),
-		LOGEMENT.ID_LOGEMENT,
-		SEQ_ID_RESERVATION.CURRVAL,
-		2
-	FROM
-		LOGEMENT
-            INNER JOIN VILLAGE
-                ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-	WHERE
-		VILLAGE.NOM_VILLAGE = 'Porto-Nuevo';
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	SELECT
-		SEQ_ID_SEJOUR.NEXTVAL,
-        TO_DATE('06/03/2017','dd/mm/yyyy'),
-		LOGEMENT.ID_LOGEMENT,
-		SEQ_ID_RESERVATION.CURRVAL,
-		2
-	FROM
-		LOGEMENT
-            INNER JOIN VILLAGE
-                ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-	WHERE
-		VILLAGE.NOM_VILLAGE = 'Porto-Nuevo';
--- fin reservation
-SAVEPOINT DEBUT_RES;
--- debut reservation
-/* reservation 14:3 nuits - 1 logement */
-INSERT INTO
-	RESERVATION
-		(ID_RESERVATION,
-		 DATE_RESERVATION,
-		 ID_CLIENT,
-		 ID_VILLAGE)
-	VALUES
-		(SEQ_ID_RESERVATION.NEXTVAL,
-		 TO_DATE('28/02/2016','dd/mm/yyyy'),
-		 1,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Porto-Nuevo'));
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('07/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 1 AND
-            VILLAGE.NOM_VILLAGE = 'Porto-Nuevo'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('08/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 1 AND
-            VILLAGE.NOM_VILLAGE = 'Porto-Nuevo'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('09/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 1 AND
-            VILLAGE.NOM_VILLAGE = 'Porto-Nuevo'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
--- fin reservation
-SAVEPOINT DEBUT_RES;
--- debut reservation
-/* reservation 15: 6 nuits - 2 logements */
-INSERT INTO
-	RESERVATION
-		(ID_RESERVATION,
-		 DATE_RESERVATION,
-		 ID_CLIENT,
-		 ID_VILLAGE)
-	VALUES
-		(SEQ_ID_RESERVATION.NEXTVAL,
-		 TO_DATE('28/02/2016','dd/mm/yyyy'),
-		 8,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Porto-Nuevo'));
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('09/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 2 AND
-            VILLAGE.NOM_VILLAGE = 'Porto-Nuevo'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('09/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 3 AND
-            VILLAGE.NOM_VILLAGE = 'Porto-Nuevo'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('10/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 2 AND
-            VILLAGE.NOM_VILLAGE = 'Porto-Nuevo'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('10/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 3 AND
-            VILLAGE.NOM_VILLAGE = 'Porto-Nuevo'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('11/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 2 AND
-            VILLAGE.NOM_VILLAGE = 'Porto-Nuevo'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('11/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 3 AND
-            VILLAGE.NOM_VILLAGE = 'Porto-Nuevo'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('12/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 2 AND
-            VILLAGE.NOM_VILLAGE = 'Porto-Nuevo'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('12/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 3 AND
-            VILLAGE.NOM_VILLAGE = 'Porto-Nuevo'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('13/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 2 AND
-            VILLAGE.NOM_VILLAGE = 'Porto-Nuevo'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('13/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 3 AND
-            VILLAGE.NOM_VILLAGE = 'Porto-Nuevo'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('14/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 2 AND
-            VILLAGE.NOM_VILLAGE = 'Porto-Nuevo'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('14/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 3 AND
-            VILLAGE.NOM_VILLAGE = 'Porto-Nuevo'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 2);
--- fin reservation
-----**********
-SAVEPOINT DEBUT_RES;
--- debut reservation
-/* reservation 16: 1 nuit - 1 logement */
-INSERT INTO
-	RESERVATION
-		(ID_RESERVATION,
-		 DATE_RESERVATION,
-		 ID_CLIENT,
-		 ID_VILLAGE)
-	VALUES
-		(SEQ_ID_RESERVATION.NEXTVAL,
-		 TO_DATE('19/02/2016','dd/mm/yyyy'),
-		 4,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Porto-Nuevo'));
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('01/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 108 AND
-            VILLAGE.NOM_VILLAGE = 'Porto-Nuevo'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 3);
--- fin reservation
-
--- == Village Kouros ==
-SAVEPOINT DEBUT_RES;
--- debut reservation
-/* reservation 17: 4 nuits - 1 logement */
-INSERT INTO
-	RESERVATION
-		(ID_RESERVATION,
-		 DATE_RESERVATION,
-		 ID_CLIENT,
-		 ID_VILLAGE)
-	VALUES
-		(SEQ_ID_RESERVATION.NEXTVAL,
-		 TO_DATE('24/02/2016','dd/mm/yyyy'),
-		 9,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'));
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('17/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 19 AND
-            VILLAGE.NOM_VILLAGE = 'Kouros'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 1);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('18/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 19 AND
-            VILLAGE.NOM_VILLAGE = 'Kouros'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 1);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('19/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 19 AND
-            VILLAGE.NOM_VILLAGE = 'Kouros'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 1);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('20/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 19 AND
-            VILLAGE.NOM_VILLAGE = 'Kouros'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 1);
--- fin reservation
-/* reservation 18: 3 nuits - 2 logements */
-INSERT INTO
-	RESERVATION
-		(ID_RESERVATION,
-		 DATE_RESERVATION,
-		 ID_CLIENT,
-		 ID_VILLAGE)
-	VALUES
-		(SEQ_ID_RESERVATION.NEXTVAL,
-		 TO_DATE('25/02/2016','dd/mm/yyyy'),
-		 13,
-		 (SELECT ID_VILLAGE FROM VILLAGE WHERE NOM_VILLAGE = 'Kouros'));
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('18/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 8 AND
-            VILLAGE.NOM_VILLAGE = 'Kouros'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 1);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('19/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 8 AND
-            VILLAGE.NOM_VILLAGE = 'Kouros'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 1);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('20/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 8 AND
-            VILLAGE.NOM_VILLAGE = 'Kouros'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 1);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('18/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 107 AND
-            VILLAGE.NOM_VILLAGE = 'Kouros'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 4);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('19/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 107 AND
-            VILLAGE.NOM_VILLAGE = 'Kouros'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 4);
-INSERT INTO
-	SEJOUR
-		(ID_SEJOUR,
-         DATE_SEJOUR,
-		 ID_LOGEMENT,
-		 ID_RESERVATION,
-		 NB_PERSONNES)
-	VALUES
-		(SEQ_ID_SEJOUR.NEXTVAL,
-         TO_DATE('20/03/2016','dd/mm/yyyy'),
-        (SELECT
-            ID_LOGEMENT
-          FROM
-            LOGEMENT
-                INNER JOIN VILLAGE
-                    ON LOGEMENT.ID_VILLAGE = VILLAGE.ID_VILLAGE
-          WHERE
-            LOGEMENT.NO_LOGEMENT = 107 AND
-            VILLAGE.NOM_VILLAGE = 'Kouros'),
-		 SEQ_ID_RESERVATION.CURRVAL,
-		 4);
--- fin reservation
-----**********
+ALTER TABLE EMPLOYE
+  ADD COURRIEL VARCHAR2(50) NULL;
 
 exit
 /
-
