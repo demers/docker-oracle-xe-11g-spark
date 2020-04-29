@@ -41,7 +41,7 @@ CREATE TABLE EMPLOYE
 
 
 /***********************************************************
-	Séquence "SEQ_EMPLOYE_NO_EMPLOYE"
+	Sequence "SEQ_EMPLOYE_NO_EMPLOYE"
 ***********************************************************/
 CREATE SEQUENCE SEQ_EMPLOYE_NO_EMPLOYE
 			 INCREMENT BY 1
@@ -50,16 +50,16 @@ CREATE SEQUENCE SEQ_EMPLOYE_NO_EMPLOYE
 
 /* **********************************************************
 	DML Insert
-	Schéma MRD:	"Cas Projets Version 0"
-	Auteur:		Sylvie Monjal - Cégep de Ste-Foy  	
+	Schema MRD:	"Cas Projets Version 0"
+	Auteur:		Sylvie Monjal - Cegep de Ste-Foy  	
 ********************************************************** */
 
 /*===============================================================================
-     Table DEPARTEMENT: 5 départements 
+     Table DEPARTEMENT: 5 departements 
 /*===============================================================================*/	
 
 --=====================================================================================
--- Département 'Recherche'
+-- Departement 'Recherche'
 INSERT INTO
 	DEPARTEMENT
 		(NOM_DEPARTEMENT,
@@ -70,7 +70,7 @@ INSERT INTO
 		 'Recherche',
 		 NULL);
 --=====================================================================================
--- Département 'Finances'
+-- Departement 'Finances'
 INSERT INTO
 	DEPARTEMENT
 		(NOM_DEPARTEMENT,
@@ -81,7 +81,7 @@ INSERT INTO
 		 'Finances',
 		 NULL);
 --=====================================================================================
--- Département 'Informatique'
+-- Departement 'Informatique'
 INSERT INTO
 	DEPARTEMENT
 	VALUES
@@ -89,7 +89,7 @@ INSERT INTO
 		 'Informatique',
 		 NULL);
 --=====================================================================================
--- Département 'Marketing'
+-- Departement 'Marketing'
 INSERT INTO
 	DEPARTEMENT
 		(NOM_DEPARTEMENT,
@@ -98,7 +98,7 @@ INSERT INTO
 		('Markt',
 		 'Marketing');
 --=====================================================================================
--- Département 'Ventes'	 
+-- Departement 'Ventes'	 
 INSERT INTO
 	DEPARTEMENT
 		(TELEPHONE,		
@@ -111,7 +111,7 @@ INSERT INTO
 
 
 /*===============================================================================
-     Table EMPLOYE: 18 employés
+     Table EMPLOYE: 18 employes
 /*===============================================================================*/	
 
 INSERT INTO
@@ -174,10 +174,10 @@ INSERT INTO
 		 NULL);
 	 
 --=====================================================================================
--- Département 'Recherche' --> aucun employé
+-- Departement 'Recherche' --> aucun employé
 
 --=====================================================================================
--- Département 'Finances' --> 2 employés
+-- Departement 'Finances' --> 2 employés
 INSERT INTO
 	EMPLOYE
 		(NO_EMPLOYE,
@@ -238,7 +238,7 @@ INSERT INTO
 		 NULL);
 
 --=====================================================================================
--- Département 'Informatique' --> 9 employés
+-- Departement 'Informatique' --> 9 employés
 INSERT INTO
 	EMPLOYE
 		(NO_EMPLOYE,
@@ -464,7 +464,7 @@ INSERT INTO
 		 'M',
 		 NULL, 
 		 TO_DATE('2014-08-28','yyyy-mm-dd'),
-		 'rédacteur',
+		 'redacteur',
 		 35100,
 		 'Info',
 		 NULL,
@@ -501,7 +501,7 @@ INSERT INTO
 		 NULL);
 
 --=====================================================================================
--- Département 'Marketing' --> 2 employés
+-- Departement 'Marketing' --> 2 employés
 INSERT INTO
 	EMPLOYE
 		(NO_EMPLOYE,
@@ -562,7 +562,7 @@ INSERT INTO
 		 NULL);
 
 --=====================================================================================
--- Département 'Ventes' --> 3 employés
+-- Departement 'Ventes' --> 3 employés
 INSERT INTO
 	EMPLOYE
 		(NO_EMPLOYE,
@@ -650,7 +650,7 @@ INSERT INTO
 		 NULL,
 		 NULL);
 		 
--- Sauvegarde des données
+-- Sauvegarde des donnees
 COMMIT;
 
 /* EXERCICE 1 */
@@ -689,7 +689,7 @@ INSERT INTO
 		('Navel',
 		 14237,
 		 NULL,
-		 'Québec',
+		 'Quebec',
 		 'G1R3X4',
 		 NULL);
 INSERT INTO
@@ -704,7 +704,7 @@ INSERT INTO
 		('Grahams',
 		 12228,
 		 NULL,
-		 'Québec',
+		 'Quebec',
 		 'G2T3Y4',
 		 NULL);
 INSERT INTO
@@ -719,7 +719,7 @@ INSERT INTO
 		('Bazoo',
 		 5774,
 		 NULL,
-		 'Québec',
+		 'Quebec',
 		 'S1F2Y4',
 		 NULL);
 INSERT INTO
@@ -734,7 +734,7 @@ INSERT INTO
 		('Durivage',
 		 3774,
 		 NULL,
-		 'Québec',
+		 'Quebec',
 		 'P5F2Z4',
 		 NULL);
 INSERT INTO
@@ -749,7 +749,7 @@ INSERT INTO
 		('Leblanc',
 		 4561,
 		 NULL,
-		 'Montréal',
+		 'Montreal',
 		 'D8F2Y4',
 		 NULL);
 INSERT INTO
@@ -764,7 +764,7 @@ INSERT INTO
 		('GMC',
 		 12,
 		 NULL,
-		 'Montréal',
+		 'Montreal',
 		 'S7F2W4',
 		 NULL);
 INSERT INTO
@@ -779,7 +779,7 @@ INSERT INTO
 		('KPMG',
 		 11223,
 		 NULL,
-		 'Montréal',
+		 'Montreal',
 		 'B1V2R4',
 		 NULL);
 INSERT INTO
@@ -794,7 +794,7 @@ INSERT INTO
 		('ArcBec',
 		 4456,
 		 NULL,
-		 'Lévis',
+		 'Levis',
 		 'T1T2M4',
 		 NULL);
 COMMIT;
