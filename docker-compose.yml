@@ -4,6 +4,7 @@ services:
   oracle11gspark:
     image: demers/docker-oracle-xe-11g-spark
     container_name: oracle11gspark
+    #build: .
     volumes:
       - "data_work:/home/ubuntu/work"
       - "./src:/home/ubuntu/src"
@@ -13,7 +14,7 @@ services:
       - "49161:1521"
       - "4567:4567"
     # A de'commenter pour Linux Ubuntu si ne'cessaire
-    # network_mode: "host"
+    #network_mode: "host"
     # A de'commenter pour Linux Ubuntu sur le cloud
     # network_mode: "bridge"
 

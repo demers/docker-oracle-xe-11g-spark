@@ -52,11 +52,13 @@ RUN echo "export PATH=\$ORACLE_HOME/bin:$PATH" >> ${WORKDIRECTORY}/.bash_profile
 
 RUN echo "export ORACLE_SID=XE" >> ${WORKDIRECTORY}/.bash_profile
 
-RUN echo "alias spark='killall java; sleep 1; nohup java -jar target/sparkprojets-jar-with-dependencies.jar 2> /dev/null &'" >> ${WORKDIRECTORY}/.bash_profile
+#RUN echo "alias spark='killall java; sleep 1; nohup java -cp /home/ubuntu/classpath/ojdbc6.jar -jar target/sparkprojets-jar-with-dependencies.jar &'" >> ${WORKDIRECTORY}/.bash_profile
+RUN echo "alias spark='killall java; sleep 1; nohup mvn exec:java &'" >> ${WORKDIRECTORY}/.bash_profile
 
 
 RUN echo "echo 'Attendre 30 secondes le démarrage du serveur Oracle... (une fois seulement)'; sleep 30; echo 'alter system disable restricted session;' | /u01/app/oracle/product/11.2.0/xe/bin/sqlplus -s SYSTEM/oracle" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "mv -f ~/.bash_profile ~/.bash_profile.init; grep -v 'Attendre' ~/.bash_profile.init > ~/.bash_profile" >> ${WORKDIRECTORY}/.bash_profile
+RUN echo "echo 'Attendre quelques secondes de plus...'" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "echo 'Création du compte PROJETS...'" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "sleep 2" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "sqlplus SYSTEM/oracle @compte.sql" >> ${WORKDIRECTORY}/.bash_profile
@@ -68,7 +70,8 @@ RUN echo 'mvn "verify"' >> ${WORKDIRECTORY}/.bash_profile
 RUN echo 'mvn "test"' >> ${WORKDIRECTORY}/.bash_profile
 RUN echo 'mvn "package"' >> ${WORKDIRECTORY}/.bash_profile
 RUN echo 'sleep 2' >> ${WORKDIRECTORY}/.bash_profile
-RUN echo 'nohup java -jar target/sparkprojets-jar-with-dependencies.jar 2> /dev/null &' >> ${WORKDIRECTORY}/.bash_profile
+#RUN echo 'nohup java -cp /home/ubuntu/classpath/ojdbc6.jar -jar target/sparkprojets-jar-with-dependencies.jar &' >> ${WORKDIRECTORY}/.bash_profile
+RUN echo 'nohup mvn exec:java &' >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "mv -f ~/.bash_profile ~/.bash_profile.init; grep -v 'sqlplus' ~/.bash_profile.init > ~/.bash_profile" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "mv -f ~/.bash_profile ~/.bash_profile.init; grep -v 'mvn' ~/.bash_profile.init > ~/.bash_profile" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "mv -f ~/.bash_profile ~/.bash_profile.init; grep -v 'nohup' ~/.bash_profile.init > ~/.bash_profile" >> ${WORKDIRECTORY}/.bash_profile
@@ -117,9 +120,13 @@ ADD j.d.ac /
 ADD j.d.ad /
 RUN cat /j.d.aa /j.d.ab /j.d.ac /j.d.ad > /j.d
 RUN rm -f /j.d.a*
+#RUN mv -f /j.d /jdk1.8_1.8.0251-1_amd64.deb
+#RUN apt install -y /jdk1.8_1.8.0251-1_amd64.deb
 RUN mv -f /j.d /jdk-13.0.2_linux-x64_bin.deb
 RUN apt install -y /jdk-13.0.2_linux-x64_bin.deb
 
+#RUN echo "export JAVA_HOME=/usr/java/jdk1.8.0_251-amd64/" >> ${WORKDIRECTORY}/.bash_profile
+#RUN echo "export CLASSPATH=.:/usr/java/jdk1.8.0_251-amd64/lib:/home/ubuntu/classpath" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "export JAVA_HOME=/usr/lib/jvm/jdk-13.0.2/" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "export CLASSPATH=.:/usr/lib/jvm/jdk-13.0.2/lib:/home/ubuntu/classpath" >> ${WORKDIRECTORY}/.bash_profile
 
@@ -168,6 +175,7 @@ ADD pom.xml ${WORKDIRECTORY}/pom.xml
 RUN mkdir ${WORKDIRECTORY}/dbrepository
 RUN cd ${WORKDIRECTORY}
 RUN mvn deploy:deploy-file -Dfile=./classpath/ojdbc6.jar -DgroupId=ojdbc6 -DartifactId=ojdbc6 -Dversion=11.2.0.4.0 -Dpackaging=jar -Durl=file:./dbrepository/ -DrepositoryId=dbrepository -DupdateReleaseInfo=true
+#RUN mvn install:install-file -Dfile=./classpath/ojdbc6.jar -DgroupId=com.oracle -DartifactId=ojdbc6 -Dversion=11.2.0.4.0 -Dpackaging=jar
 RUN chown -R $USERNAME:$PASSWORD ${WORKDIRECTORY}/dbrepository
 
 #RUN ["mvn", "dependency:resolve"]
