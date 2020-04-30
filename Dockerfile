@@ -53,29 +53,28 @@ RUN echo "export PATH=\$ORACLE_HOME/bin:$PATH" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "export ORACLE_SID=XE" >> ${WORKDIRECTORY}/.bash_profile
 
 #RUN echo "alias spark='killall java; sleep 1; nohup java -cp /home/ubuntu/classpath/ojdbc6.jar -jar target/sparkprojets-jar-with-dependencies.jar &'" >> ${WORKDIRECTORY}/.bash_profile
-RUN echo "alias spark='killall java; sleep 1; nohup mvn exec:java &'" >> ${WORKDIRECTORY}/.bashrc
+RUN echo "alias spark='killall java; sleep 1; nohup mvn exec:java &'" >> ${WORKDIRECTORY}/.bash_profile
 
 
 RUN echo "echo 'Attendre 30 secondes le démarrage du serveur Oracle... (une fois seulement)'; sleep 30; echo 'alter system disable restricted session;' | /u01/app/oracle/product/11.2.0/xe/bin/sqlplus -s SYSTEM/oracle" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "echo 'Attendez quelques secondes...'" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "echo 'Création du compte PROJETS...'" >> ${WORKDIRECTORY}/.bash_profile
-RUN echo "sleep 2" >> ${WORKDIRECTORY}/.bash_profile
+RUN echo "sleep 2 # ENLEVER" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "sqlplus SYSTEM/oracle @compte.sql" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "echo 'Création des tables et insertions dans la BD PROJETS...'" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "sleep 2" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "sqlplus PROJETS/projets @MRD.sql" >> ${WORKDIRECTORY}/.bash_profile
-RUN echo 'mvn "dependency:resolve"' >> ${WORKDIRECTORY}/.bash_profile
-RUN echo 'mvn "verify"' >> ${WORKDIRECTORY}/.bash_profile
-RUN echo 'mvn "test"' >> ${WORKDIRECTORY}/.bash_profile
-RUN echo 'mvn "package"' >> ${WORKDIRECTORY}/.bash_profile
+RUN echo 'mvn "dependency:resolve" # ENLEVER' >> ${WORKDIRECTORY}/.bash_profile
+RUN echo 'mvn "verify" # ENLEVER' >> ${WORKDIRECTORY}/.bash_profile
+RUN echo 'mvn "test" # ENLEVER' >> ${WORKDIRECTORY}/.bash_profile
+RUN echo 'mvn "package" # ENLEVER' >> ${WORKDIRECTORY}/.bash_profile
 RUN echo 'sleep 2' >> ${WORKDIRECTORY}/.bash_profile
 #RUN echo 'nohup java -cp /home/ubuntu/classpath/ojdbc6.jar -jar target/sparkprojets-jar-with-dependencies.jar &' >> ${WORKDIRECTORY}/.bash_profile
-RUN echo 'nohup mvn exec:java &' >> ${WORKDIRECTORY}/.bash_profile
+RUN echo 'nohup mvn exec:java & # ENLEVER' >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "mv -f ~/.bash_profile ~/.bash_profile.init; grep -v 'Attendre' ~/.bash_profile.init > ~/.bash_profile" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "mv -f ~/.bash_profile ~/.bash_profile.init; grep -v 'sqlplus' ~/.bash_profile.init > ~/.bash_profile" >> ${WORKDIRECTORY}/.bash_profile
-RUN echo "mv -f ~/.bash_profile ~/.bash_profile.init; grep -v 'mvn' ~/.bash_profile.init > ~/.bash_profile" >> ${WORKDIRECTORY}/.bash_profile
-RUN echo "mv -f ~/.bash_profile ~/.bash_profile.init; grep -v 'nohup' ~/.bash_profile.init > ~/.bash_profile" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "mv -f ~/.bash_profile ~/.bash_profile.init; grep -v 'Création' ~/.bash_profile.init > ~/.bash_profile" >> ${WORKDIRECTORY}/.bash_profile
+RUN echo "mv -f ~/.bash_profile ~/.bash_profile.init; grep -v 'ENLEVER' ~/.bash_profile.init > ~/.bash_profile" >> ${WORKDIRECTORY}/.bash_profile
 
 # Permet de garder un historique de la commande SQLPlus.
 RUN apt-get install -y rlwrap
