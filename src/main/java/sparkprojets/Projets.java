@@ -14,10 +14,11 @@ public class Projets {
     private final static String messageDBReturnSuccess = "Connecté au compte PROJETS sur Oracle";
     private final static String messageDBReturnFailure = "NON Connecté à la base de données Oracle";
 
+    Connection connexion = null;
 
-    public static String connexionDB()
+    public String connexionDB()
     {
-        Connection connexion = null;
+        
 
         String dbReturn = null;
 
