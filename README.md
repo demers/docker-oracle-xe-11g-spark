@@ -130,7 +130,7 @@ On détruit le conteneur par:
 ```
 docker-compose down
 
-docker rmi oracle11gspark
+docker rmi demers/docker-oracle-xe-11g-spark
 ```
 
 On peut faire une copie de sécurité du conteneur par la commande (3 Go au moins
@@ -180,32 +180,6 @@ sp
 
 N.B.: Le programme `rlwrap` est utilisé pour obtenir un historique par la flèche vers
 le haut.
-
-# Comment se connecter à Oracle par SQLPlus de l'extérieur du conteneur
-
-## Le conteneur s'exécute localement sur votre ordinateur
-
-Si votre conteneur s'exécute localement sur votre ordinateur et que vous avez
-installé SQLPlus ([voir](https://www.oratable.com/sqlplus-instant-client-installation/) pour Windows ou [voir](https://askubuntu.com/questions/159939/how-to-install-sqlplus) pour Ubuntu 18.04), faites la commande:
-
-```
-sqlplus SYSTEM/oracle@//localhost:49161/XE
-```
-
-ou
-
-```
-sqlplus PROJETS/projets@//localhost:49161/XE
-```
-
-Si vous êtes sous Linux, il se peut que vous aillez à changer le port 49161 pour
-1521.
-
-## Le conteneur s'exécute à l'extérieur sur un serveur à l'adresse 11.22.33.44
-
-```
-sqlplus SYSTEM/oracle@//11.22.33.44:49161/XE
-```
 
 # Comment installer SQL Developer
 
