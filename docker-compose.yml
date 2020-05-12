@@ -13,6 +13,7 @@ services:
       - "2222:22"
       - "49161:1521"
       - "4567:4567"
+      - "8000:8000"
     # A de'commenter pour Linux Ubuntu si ne'cessaire
     #network_mode: "host"
     # A de'commenter pour Linux Ubuntu sur le cloud

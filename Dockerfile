@@ -52,6 +52,10 @@ RUN echo "export PATH=\$ORACLE_HOME/bin:$PATH" >> ${WORKDIRECTORY}/.bash_profile
 
 RUN echo "export ORACLE_SID=XE" >> ${WORKDIRECTORY}/.bash_profile
 
+# https://stackoverflow.com/questions/49757830/connecting-eclipse-to-docker-container-for-remote-debugging
+RUN echo "export JAVA_OPTS=\"-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n\"" >> ${WORKDIRECTORY}/.bash_profile
+
+
 #RUN echo "alias spark='killall java; sleep 1; nohup java -cp /home/ubuntu/classpath/ojdbc6.jar -jar target/sparkprojets-jar-with-dependencies.jar &'" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "alias spark='killall java; sleep 1; nohup mvn exec:java &'" >> ${WORKDIRECTORY}/.bash_profile
 
@@ -101,6 +105,7 @@ RUN apt install -y software-properties-common apt-transport-https wget
 EXPOSE 22
 EXPOSE 1521
 EXPOSE 8080
+EXPOSE 8000
 
 # Installation du pilote Java Oracle
 # https://www.codejava.net/java-se/jdbc/connect-to-oracle-database-via-jdbc
