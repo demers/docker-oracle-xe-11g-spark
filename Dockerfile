@@ -17,7 +17,7 @@ ENV PASSWORD=ubuntu
 ENV WORKDIRECTORY=/home/ubuntu
 
 RUN apt-get update
-RUN apt install -y apt-utils vim-nox vim-gtk curl git nano psmisc
+RUN apt install -y apt-utils vim-nox vim-gtk curl git nano psmisc jed httpie
 
 # Install a basic SSH server
 RUN apt install -y openssh-server
@@ -54,7 +54,7 @@ RUN echo "export ORACLE_SID=XE" >> ${WORKDIRECTORY}/.bash_profile
 
 # https://stackoverflow.com/questions/49757830/connecting-eclipse-to-docker-container-for-remote-debugging
 #RUN echo "export JAVA_TOOL_OPTIONS=\"-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n\"" >> ${WORKDIRECTORY}/.bash_profile
-RUN echo "export JAVA_TOOL_OPTIONS=\"-Xdebug -agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n\"" >> ${WORKDIRECTORY}/.bash_profile
+#RUN echo "export JAVA_TOOL_OPTIONS=\"-Xdebug -agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n\"" >> ${WORKDIRECTORY}/.bash_profile
 
 
 #RUN echo "alias spark='killall java; sleep 1; nohup java -cp /home/ubuntu/classpath/ojdbc6.jar -jar target/sparkprojets-jar-with-dependencies.jar &'" >> ${WORKDIRECTORY}/.bash_profile
