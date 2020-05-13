@@ -1,3 +1,6 @@
+// Pour compiler sans tenir compte de l'échec des tests
+// mvn -DskipTests "package"
+
 package sparkprojets;
 
 import org.junit.jupiter.api.Test;
