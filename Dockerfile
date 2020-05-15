@@ -77,7 +77,7 @@ RUN echo 'mvn "test" # ENLEVER' >> ${WORKDIRECTORY}/.bash_profile
 RUN echo 'mvn "package" # ENLEVER' >> ${WORKDIRECTORY}/.bash_profile
 RUN echo 'sleep 2' >> ${WORKDIRECTORY}/.bash_profile
 #RUN echo 'nohup java -cp /home/ubuntu/classpath/ojdbc6.jar -jar target/sparkprojets-jar-with-dependencies.jar &' >> ${WORKDIRECTORY}/.bash_profile
-RUN echo 'nohup mvn exec:java & # ENLEVER' >> ${WORKDIRECTORY}/.bash_profile
+#RUN echo 'nohup mvn exec:java & # ENLEVER' >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "mv -f ~/.bash_profile ~/.bash_profile.init; grep -v 'Attendre' ~/.bash_profile.init > ~/.bash_profile" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "mv -f ~/.bash_profile ~/.bash_profile.init; grep -v 'sqlplus' ~/.bash_profile.init > ~/.bash_profile" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "mv -f ~/.bash_profile ~/.bash_profile.init; grep -v 'Création' ~/.bash_profile.init > ~/.bash_profile" >> ${WORKDIRECTORY}/.bash_profile
