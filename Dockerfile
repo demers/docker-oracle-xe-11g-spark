@@ -63,7 +63,7 @@ RUN echo "export ORACLE_SID=XE" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "alias spark='killall java; sleep 1; nohup mvn exec:java &'" >> ${WORKDIRECTORY}/.bash_profile
 
 
-RUN echo "echo 'Attendre 60 secondes le démarrage du serveur Oracle... (une fois seulement)'; sleep 60; echo 'alter system disable restricted session;' | /u01/app/oracle/product/11.2.0/xe/bin/sqlplus -s SYSTEM/oracle" >> ${WORKDIRECTORY}/.bash_profile
+RUN echo "echo 'Attendre 120 secondes le démarrage du serveur Oracle... (une fois seulement)'; sleep 120; echo 'alter system disable restricted session;' | /u01/app/oracle/product/11.2.0/xe/bin/sqlplus -s SYSTEM/oracle" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "echo 'Attendez quelques secondes...'" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "echo 'Création du compte PROJETS...'" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "sleep 2 # ENLEVER" >> ${WORKDIRECTORY}/.bash_profile
