@@ -152,7 +152,7 @@ ENV PYTHONIOENCODING=utf-8
 
 RUN git clone https://github.com/pyenv/pyenv.git ${WORKDIRECTORY}/.pyenv
 RUN echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ${WORKDIRECTORY}/.bash_profile
-RUN echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ${WORKDIRECTORY}/.bash_profile
+RUN echo 'export PATH="\$PYENV_ROOT/bin:\$PATH"' >> ${WORKDIRECTORY}/.bash_profile
 RUN echo 'eval "$(pyenv init -)"' >> ${WORKDIRECTORY}/.bash_profile
 
 # Installation du pilote Oracle pour Python 3
