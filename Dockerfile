@@ -23,7 +23,6 @@ RUN apt install -y jed httpie
 RUN apt install -y ranger tmux tree
 
 # Install a basic SSH server
-RUN apt-get update
 RUN apt install -y openssh-server
 RUN sed -i 's|session    required     pam_loginuid.so|session    optional     pam_loginuid.so|g' /etc/pam.d/sshd
 RUN mkdir -p /var/run/sshd
