@@ -19,7 +19,7 @@ ENV WORKDIRECTORY=/home/ubuntu
 RUN apt-get update
 RUN apt install -y apt-utils vim-nox vim-gtk curl git nano psmisc
 RUN apt-get update
-RUN apt install -y jed httpie ranger tmux
+RUN apt install -y jed httpie ranger tmux tree
 
 # Install a basic SSH server
 RUN apt install -y openssh-server
@@ -50,7 +50,7 @@ RUN echo "export DISPLAY=:0.0" >> /root/.bash_profile
 
 RUN echo "export ORACLE_HOME=/u01/app/oracle/product/11.2.0/xe" >> ${WORKDIRECTORY}/.bash_profile
 
-RUN echo "export PATH=\$ORACLE_HOME/bin:$PATH" >> ${WORKDIRECTORY}/.bash_profile
+RUN echo "export PATH=\$ORACLE_HOME/bin:\$PATH" >> ${WORKDIRECTORY}/.bash_profile
 
 RUN echo "export ORACLE_SID=XE" >> ${WORKDIRECTORY}/.bash_profile
 
@@ -61,26 +61,25 @@ RUN echo "export ORACLE_SID=XE" >> ${WORKDIRECTORY}/.bash_profile
 
 #RUN echo "alias spark='killall java; sleep 1; nohup java -cp /home/ubuntu/classpath/ojdbc6.jar -jar target/sparkprojets-jar-with-dependencies.jar &'" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "alias spark='killall java; sleep 1; nohup mvn exec:java &'" >> ${WORKDIRECTORY}/.bash_profile
+RUN echo "alias startoracle='sudo service oracle-xe restart'" >> ${WORKDIRECTORY}/.bash_profile
+RUN echo "alias loadsql='sqlplus SYSTEM/oracle @compte.sql; sleep 2; sqlplus PROJETS/projets @MRD.sql'" >> ${WORKDIRECTORY}/.bash_profile
 
 
-RUN echo "echo 'Attendre 120 secondes le démarrage du serveur Oracle... (une fois seulement)'; sleep 120; echo 'alter system disable restricted session;' | /u01/app/oracle/product/11.2.0/xe/bin/sqlplus -s SYSTEM/oracle" >> ${WORKDIRECTORY}/.bash_profile
+RUN echo "echo 'Attendre 80 secondes le démarrage du serveur Oracle... (une fois seulement)'; sleep 80; echo 'alter system disable restricted session;' | /u01/app/oracle/product/11.2.0/xe/bin/sqlplus -s SYSTEM/oracle # ENLEVER" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "echo 'Attendez quelques secondes...'" >> ${WORKDIRECTORY}/.bash_profile
-RUN echo "echo 'Création du compte PROJETS...'" >> ${WORKDIRECTORY}/.bash_profile
-RUN echo "sleep 2 # ENLEVER" >> ${WORKDIRECTORY}/.bash_profile
-RUN echo "sqlplus SYSTEM/oracle @compte.sql" >> ${WORKDIRECTORY}/.bash_profile
-RUN echo "echo 'Création des tables et insertions dans la BD PROJETS...'" >> ${WORKDIRECTORY}/.bash_profile
-RUN echo "sleep 2" >> ${WORKDIRECTORY}/.bash_profile
-RUN echo "sqlplus PROJETS/projets @MRD.sql" >> ${WORKDIRECTORY}/.bash_profile
+RUN echo "echo 'Création du compte PROJETS...' # ENLEVER" >> ${WORKDIRECTORY}/.bash_profile
+RUN echo "sleep 4 # ENLEVER" >> ${WORKDIRECTORY}/.bash_profile
+RUN echo "sqlplus SYSTEM/oracle @compte.sql # ENLEVER" >> ${WORKDIRECTORY}/.bash_profile
+RUN echo "echo 'Création des tables et insertions dans la BD PROJETS...' # ENLEVER" >> ${WORKDIRECTORY}/.bash_profile
+RUN echo "sleep 4 # ENLEVER" >> ${WORKDIRECTORY}/.bash_profile
+RUN echo "sqlplus PROJETS/projets @MRD.sql # ENLEVER" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo 'mvn "dependency:resolve" # ENLEVER' >> ${WORKDIRECTORY}/.bash_profile
 RUN echo 'mvn "verify" # ENLEVER' >> ${WORKDIRECTORY}/.bash_profile
 RUN echo 'mvn "test" # ENLEVER' >> ${WORKDIRECTORY}/.bash_profile
 RUN echo 'mvn "package" # ENLEVER' >> ${WORKDIRECTORY}/.bash_profile
-RUN echo 'sleep 2' >> ${WORKDIRECTORY}/.bash_profile
+RUN echo 'sleep 4' >> ${WORKDIRECTORY}/.bash_profile
 #RUN echo 'nohup java -cp /home/ubuntu/classpath/ojdbc6.jar -jar target/sparkprojets-jar-with-dependencies.jar &' >> ${WORKDIRECTORY}/.bash_profile
 #RUN echo 'nohup mvn exec:java & # ENLEVER' >> ${WORKDIRECTORY}/.bash_profile
-RUN echo "mv -f ~/.bash_profile ~/.bash_profile.init; grep -v 'Attendre' ~/.bash_profile.init > ~/.bash_profile" >> ${WORKDIRECTORY}/.bash_profile
-RUN echo "mv -f ~/.bash_profile ~/.bash_profile.init; grep -v 'sqlplus' ~/.bash_profile.init > ~/.bash_profile" >> ${WORKDIRECTORY}/.bash_profile
-RUN echo "mv -f ~/.bash_profile ~/.bash_profile.init; grep -v 'Création' ~/.bash_profile.init > ~/.bash_profile" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "mv -f ~/.bash_profile ~/.bash_profile.init; grep -v 'ENLEVER' ~/.bash_profile.init > ~/.bash_profile" >> ${WORKDIRECTORY}/.bash_profile
 
 # Permet de garder un historique de la commande SQLPlus.
@@ -137,7 +136,7 @@ RUN apt install -y /jdk-13.0.2_linux-x64_bin.deb
 RUN echo "export JAVA_HOME=/usr/lib/jvm/jdk-13.0.2/" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "export CLASSPATH=.:/usr/lib/jvm/jdk-13.0.2/lib:/home/ubuntu/classpath" >> ${WORKDIRECTORY}/.bash_profile
 
-RUN echo "export PATH=\$JAVA_HOME/bin:$PATH" >> ${WORKDIRECTORY}/.bash_profile
+RUN echo "export PATH=\$JAVA_HOME/bin:\$PATH" >> ${WORKDIRECTORY}/.bash_profile
 
 # Installation Python 3
 RUN apt install -y git python3 python3-pip python3-mock python3-tk
