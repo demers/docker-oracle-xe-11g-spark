@@ -20,7 +20,9 @@ RUN apt-get update
 RUN apt install -y apt-utils vim-nox vim-gtk curl git nano psmisc
 RUN apt-get update
 RUN apt install -y jed httpie
-RUN apt install -y ranger tmux tree
+RUN apt install -y ranger tmux
+RUN apt install -y tree
+RUN apt-get update
 
 # Install a basic SSH server
 RUN apt install -y openssh-server
