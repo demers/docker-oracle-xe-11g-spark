@@ -68,7 +68,7 @@ RUN echo "alias startoracle='sudo service oracle-xe restart'" >> ${WORKDIRECTORY
 RUN echo "alias loadsql='sqlplus SYSTEM/oracle @compte.sql; sleep 2; sqlplus PROJETS/projets @MRD.sql'" >> ${WORKDIRECTORY}/.bash_profile
 
 
-RUN echo "echo 'Attendre 80 secondes le démarrage du serveur Oracle... (une fois seulement)'; sleep 80; echo 'alter system disable restricted session;' | /u01/app/oracle/product/11.2.0/xe/bin/sqlplus -s SYSTEM/oracle # ENLEVER" >> ${WORKDIRECTORY}/.bash_profile
+RUN echo "echo 'Attendre 60 secondes le démarrage du serveur Oracle... (une fois seulement)'; sleep 60; echo 'alter system disable restricted session;' | /u01/app/oracle/product/11.2.0/xe/bin/sqlplus -s SYSTEM/oracle # ENLEVER" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "echo 'Attendez quelques secondes...'" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "echo 'Création du compte PROJETS...' # ENLEVER" >> ${WORKDIRECTORY}/.bash_profile
 RUN echo "sleep 4 # ENLEVER" >> ${WORKDIRECTORY}/.bash_profile
