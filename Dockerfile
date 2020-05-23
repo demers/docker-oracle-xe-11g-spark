@@ -19,9 +19,11 @@ ENV WORKDIRECTORY=/home/ubuntu
 RUN apt-get update
 RUN apt install -y apt-utils vim-nox vim-gtk curl git nano psmisc
 RUN apt-get update
-RUN apt install -y jed httpie ranger tmux tree
+RUN apt install -y jed httpie
+RUN apt install -y ranger tmux tree
 
 # Install a basic SSH server
+RUN apt-get update
 RUN apt install -y openssh-server
 RUN sed -i 's|session    required     pam_loginuid.so|session    optional     pam_loginuid.so|g' /etc/pam.d/sshd
 RUN mkdir -p /var/run/sshd
